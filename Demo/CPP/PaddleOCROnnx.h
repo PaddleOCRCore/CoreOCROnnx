@@ -34,4 +34,5 @@ extern "C" {
     __declspec(dllimport) const char* __stdcall DetectBase64(const char* imagebase64);
     __declspec(dllimport) int __stdcall FreeEngine();
     __declspec(dllimport) char* __stdcall GetError();
+    __declspec(dllimport) void __stdcall FreeResultBuffer(void* ptr);
 }

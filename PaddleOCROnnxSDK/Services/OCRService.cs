@@ -247,7 +247,7 @@ namespace PaddleOCROnnxSDK
             {
                 if (ptrResult != IntPtr.Zero)
                 {
-                    Marshal.FreeHGlobal(ptrResult);
+                    OCRSDK.FreeResultBuffer(ptrResult);
                 }
             }
             return result;
@@ -266,7 +266,7 @@ namespace PaddleOCROnnxSDK
                 if (ret != IntPtr.Zero)
                 {
                     lastErr = MarshalUtf8.PtrToStringUTF8(ret);
-                    Marshal.FreeHGlobal(ret);
+                    OCRSDK.FreeResultBuffer(ret);
                 }
             }
             catch (Exception e)

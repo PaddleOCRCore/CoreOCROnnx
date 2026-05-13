@@ -85,7 +85,9 @@ int main()
             cout << "images:" << image << endl;
             auto	starttime = chrono::steady_clock::now();
             cv::Mat imgMat = cv::imread(const_cast<char*>(image.c_str()), cv::IMREAD_COLOR);
-            string cstr = DetectMat(imgMat);
+            const char* result = DetectMat(imgMat);
+            string cstr = result ? result : "";
+            FreeResultBuffer((void*)result);
             //string cstr = Detect(const_cast<char*>(image.c_str()));
             auto	endtime = chrono::steady_clock::now();
             auto duration = chrono::duration_cast<chrono::milliseconds>(endtime - starttime);

@@ -29,6 +29,10 @@ namespace PaddleOCROnnxSDK
         /// <returns></returns>
         [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
         internal static extern IntPtr GetError();
+
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        internal static extern void FreeResultBuffer(IntPtr ptr);
+
         /// <summary>
         /// 初始化OCR文字识别
         /// </summary>
