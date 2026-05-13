@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<Version>2.0.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+	<ItemGroup>
+		<None Include="$(SolutionDir)CoreOCROnnx.SDK\PaddleOCR\**">
+			<Pack>true</Pack>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+			<PackagePath>build\PaddleOCR</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="OCRModels\**" />
+	  <EmbeddedResource Remove="OCRModels\**" />
+	  <None Remove="OCRModels\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="D:\PythonProject\VSProject\PaddleOCROnnxWebApi\CoreOCROnnx.SDK\CoreOCROnnx.SDK.targets" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="$(SolutionDir)CoreOCROnnx.SDK\CoreOCROnnx.SDK.targets">
+	    <Pack>true</Pack>
+	    <PackageCopyToOutput>true</PackageCopyToOutput>
+	    <PackagePath>build</PackagePath>
+	  </None>
+		<None Include="CoreOCROnnx.SDK.targets" />
+	</ItemGroup>
+</Project>

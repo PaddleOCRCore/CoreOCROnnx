@@ -33,6 +33,7 @@
             textBoxResult = new TextBox();
             buttonGetBase64 = new Button();
             groupBox1 = new GroupBox();
+            buttonFreeEngine = new Button();
             buttonPostFile = new Button();
             textBoxApiAddress = new TextBox();
             label8 = new Label();
@@ -53,7 +54,6 @@
             comboBoxuse_gpu = new ComboBox();
             pictureBoxImg = new PictureBox();
             groupBox2 = new GroupBox();
-            buttonFreeEngine = new Button();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDowncpu_mem).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownThread).BeginInit();
@@ -135,6 +135,17 @@
             groupBox1.TabIndex = 4;
             groupBox1.TabStop = false;
             groupBox1.Text = "功能选项";
+            // 
+            // buttonFreeEngine
+            // 
+            buttonFreeEngine.Enabled = false;
+            buttonFreeEngine.Location = new Point(825, 23);
+            buttonFreeEngine.Name = "buttonFreeEngine";
+            buttonFreeEngine.Size = new Size(87, 60);
+            buttonFreeEngine.TabIndex = 23;
+            buttonFreeEngine.Text = "释放OCR";
+            buttonFreeEngine.UseVisualStyleBackColor = true;
+            buttonFreeEngine.Click += buttonFreeEngine_Click;
             // 
             // buttonPostFile
             // 
@@ -331,17 +342,6 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "图片";
             // 
-            // buttonFreeEngine
-            // 
-            buttonFreeEngine.Enabled = false;
-            buttonFreeEngine.Location = new Point(825, 23);
-            buttonFreeEngine.Name = "buttonFreeEngine";
-            buttonFreeEngine.Size = new Size(87, 60);
-            buttonFreeEngine.TabIndex = 23;
-            buttonFreeEngine.Text = "释放OCR";
-            buttonFreeEngine.UseVisualStyleBackColor = true;
-            buttonFreeEngine.Click += buttonFreeEngine_Click;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
@@ -352,7 +352,7 @@
             Controls.Add(textBoxResult);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "PaddleOCROnnx识别Demo V1.0.0--QQ群：475159576 https://github.com/PaddleOCRCore/PaddleOCRApi";
+            Text = "CoreOCROnnx识别Demo V2.0.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.WebApi";
             Load += MainForm_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();

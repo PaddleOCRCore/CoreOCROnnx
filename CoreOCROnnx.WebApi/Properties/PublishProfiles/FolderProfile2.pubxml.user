@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\PythonProject\VSProject\PaddleOCROnnxWebApi\CoreOCROnnx.WebApi\bin\DeployARM64</_PublishTargetUrl>
+    <History>True|2025-08-13T06:56:45.8899374Z||;True|2025-08-13T11:38:51.8515752+08:00||;True|2025-08-13T11:25:24.0573357+08:00||;False|2025-08-13T11:21:38.4437090+08:00||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>

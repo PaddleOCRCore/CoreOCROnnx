@@ -2,8 +2,8 @@
 # PaddleOCROnnx离线OCR组件 支持C#/C++/java/Python/Go语言开发
 <p align="center">
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-dfd.svg"></a>
-    <a href="https://github.com/PaddleOCRCore/PaddleOCROnnxApi/releases"><img src="https://img.shields.io/github/v/release/PaddleOCRCore/PaddleOCROnnxApi?color=ffa"></a>
-    <a href="https://github.com/PaddleOCRCore/PaddleOCROnnxApi/stargazers"><img src="https://img.shields.io/github/stars/PaddleOCRCore/PaddleOCROnnxApi?color=ccf"></a>
+    <a href="https://github.com/PaddleOCRCore/CoreOCROnnx/releases"><img src="https://github.com/PaddleOCRCore/CoreOCROnnx?color=ffa"></a>
+    <a href="https://github.com/PaddleOCRCore/CoreOCROnnx/stargazers"><img src="https://img.shields.io/github/stars/PaddleOCRCore/CoreOCROnnx?color=ccf"></a>
 </p>
 
 ## 一、简介
@@ -19,12 +19,12 @@ Paddle推理库版本请移步：[PaddleOCRCore/PaddleOCRApi](https://github.com
 
 1、核心文件PaddleOCROnnx.dll为C++动态链接库，支持CPU模式(GPU及Linux环境请入群)
 
-### [WebApi接口文档](./OCRCoreService/README.md)
+### [WebApi接口文档](./PaddleOCROnnxApi/README.md)
 WebApi部署后可供前端调用。
 
 ### WinFormDemo预览：
 
-<img src="./PaddleOCROnnxSDK/OCRRuntime/ocrDemo.png" width="800px;" />
+<img src="./CoreOCROnnx.SDK/OCRRuntime/ocrDemo.png" width="800px;" />
 
 依赖库列表参考：
 
@@ -57,21 +57,21 @@ WebApi部署后可供前端调用。
 
 欢迎加入QQ群475159576交流,或者添加QQ：2380243976,若您喜欢本项目，请点击免费的Star
 
-<img src="./PaddleOCROnnxSDK/OCRRuntime/qq.png" width="382px;" />
+<img src="./CoreOCROnnx.SDK/OCRRuntime/qq.png" width="382px;" />
 
 ## 捐助
 
 如果这个项目对您有所帮助，请扫下方二维码打赏一杯咖啡。
 
-<img src="./PaddleOCROnnxSDK/OCRRuntime/donate.jpg" width="382px;" />
+<img src="./CoreOCROnnx.SDK/OCRRuntime/donate.jpg" width="382px;" />
 
 ## 更新日志
 ### v1.0 `2026.1.18`
-- 初版发行: PaddleOCROnnxApi
+- 初版发行: CoreOCROnnx.WebApi
 
 ## ⭐️ Star
 
-[![Star History Chart](https://api.star-history.com/svg?repos=PaddleOCRCore/PaddleOCROnnxApi&type=Date)](https://star-history.com/#PaddleOCRCore/PaddleOCROnnxApi&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=PaddleOCRCore/CoreOCROnnx&type=Date)](https://star-history.com/#PaddleOCRCore/CoreOCROnnx&Date)
 
 ## 📄 许可证书
 
