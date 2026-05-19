@@ -352,7 +352,7 @@
             Controls.Add(textBoxResult);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "CoreOCROnnx识别Demo V2.0.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.WebApi";
+            Text = "CoreOCROnnx识别Demo V2.0.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.git";
             Load += MainForm_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
