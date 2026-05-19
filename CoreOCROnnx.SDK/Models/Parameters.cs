@@ -65,77 +65,99 @@ namespace CoreOCROnnx.SDK
     /// OCR识别参数，OCRParameter类的属性定义顺序不可随便更改，与PdddleOCROnnx.dll传入参数保持一致
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public class OCRParameter
+    public struct OCRParameter
     {
         /// <summary>
         /// CPU内存占用上限，单位MB。-1表示不限制，达到上限将自动回收
         /// </summary>
-        [field: MarshalAs(UnmanagedType.I4)]
-        public int cpu_mem { get; set; } = 2000;
+        [MarshalAs(UnmanagedType.I4)]
+        public int cpu_mem;
         /// <summary>
         /// CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快，默认10
         /// </summary>
-        public int cpu_threads { get; set; } = 10;
+        public int cpu_threads;
         /// <summary>
         /// 是否使用GPU
         /// </summary>
-        [field: MarshalAs(UnmanagedType.I1)]
-        public bool use_gpu { get; set; } = false;
+        [MarshalAs(UnmanagedType.I1)]
+        public bool use_gpu;
         /// <summary>
         /// GPU id，使用GPU时有效
         /// </summary>
-        [field: MarshalAs(UnmanagedType.I4)]
-        public int gpu_id { get; set; } = 0;
+        [MarshalAs(UnmanagedType.I4)]
+        public int gpu_id;
         /// <summary>
         /// 使用GPU时内存
         /// </summary>
-        [field: MarshalAs(UnmanagedType.I4)]
-        public int gpu_mem { get; set; } = 4000;
+        [MarshalAs(UnmanagedType.I4)]
+        public int gpu_mem;
         /// <summary>
         /// 图像预处理，在图片外周添加白边，用于提升识别率，文字框没有正确框住所有文字时，增加此值。
         /// </summary>
-        public int padding { get; set; } = 20;
+        public int padding;
         /// <summary>
         /// 按图片最长边的长度，此值为0代表不缩放，例：1024，如果图片长边大于1024则把图像整
         /// </summary>
-        public int maxSideLen { get; set; } = 1024;
+        public int maxSideLen;
         /// <summary>
         /// 文字框置信度门限，文字框没有正确框住所有文字时，减小此值。
         /// </summary>
-        public float boxScoreThresh { get; set; } = 0.5f;
+        public float boxScoreThresh;
         /// <summary>
         /// 请自行试验
         /// </summary>
-        public float boxThresh { get; set; } = 0.3f;
+        public float boxThresh;
         /// <summary>
         /// 单个文字框大小倍率，越大时单个文字框越大。此项与图片的大小相关，越大的图片此值应该越大。
         /// </summary>
-        public float unClipRatio { get; set; } = 1.6f;
+        public float unClipRatio;
         /// <summary>
         /// 只有图片倒置的情况下(旋转90~270度的图片)，才需要启用文字方向检测。
         /// </summary>
-        [field: MarshalAs(UnmanagedType.I1)]
-        public bool doAngle { get; set; } = true;
+        [MarshalAs(UnmanagedType.I1)]
+        public bool doAngle;
         /// <summary>
         /// 启用(1) / 禁用(0) 角度投票(整张图片以最大可能文字方向来识别)，当禁用文字方向检测时，此项也不起作用。
         /// </summary>
-        [field: MarshalAs(UnmanagedType.I1)]
-        public bool mostAngle { get; set; } = true;
+        [MarshalAs(UnmanagedType.I1)]
+        public bool mostAngle;
         /// <summary>
         /// 是否对结果进行可视化
         /// </summary>
 
-        [field: MarshalAs(UnmanagedType.I1)]
-        public bool visualize { get; set; } = false;
+        [MarshalAs(UnmanagedType.I1)]
+        public bool visualize;
         /// <summary>
         /// 是否输出到文件日志，在log目录下
         /// </summary>
-        [field: MarshalAs(UnmanagedType.I1)]
-        public bool enable_log { get; set; } = false;
+        [MarshalAs(UnmanagedType.I1)]
+        public bool enable_log;
         /// <summary>
         /// 是否输出到控制台日志
         /// </summary>
-        [field: MarshalAs(UnmanagedType.I1)]
-        public bool isOutputConsole { get; set; } = true;
+        [MarshalAs(UnmanagedType.I1)]
+        public bool isOutputConsole;
+
+        public static OCRParameter CreateDefault()
+        {
+            return new OCRParameter
+            {
+                cpu_mem = 2000,
+                cpu_threads = 10,
+                use_gpu = false,
+                gpu_id = 0,
+                gpu_mem = 4000,
+                padding = 20,
+                maxSideLen = 1024,
+                boxScoreThresh = 0.5f,
+                boxThresh = 0.3f,
+                unClipRatio = 1.6f,
+                doAngle = true,
+                mostAngle = true,
+                visualize = false,
+                enable_log = false,
+                isOutputConsole = true
+            };
+        }
     }
 }

@@ -50,7 +50,7 @@ namespace CoreOCROnnx.WebApi.Services
             para.cls_infer = Path.Combine(modelPathroot, _ocrConfig.cls_infer);
             para.rec_infer = Path.Combine(modelPathroot, _ocrConfig.rec_infer);
             para.keyFile = Path.Combine(modelPathroot, _ocrConfig.keyFile);
-            OCRParameter oCRParameter = new OCRParameter();
+            OCRParameter oCRParameter = OCRParameter.CreateDefault();
             oCRParameter.use_gpu = _ocrConfig.use_gpu;
             oCRParameter.gpu_id = _ocrConfig.gpu_id;
             oCRParameter.gpu_mem = _ocrConfig.gpu_mem;

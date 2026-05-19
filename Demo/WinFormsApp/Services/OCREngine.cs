@@ -27,7 +27,7 @@ namespace WinFormsApp.Services
         public static IOCRService ocrService => _ocrService.Value;
         public static string det_infer = "ch_PP-OCRv5_mobile_det.onnx";//OCR检测模型
         public static string rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR识别模型
-        public static string cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
+        public static string cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
         public static string keys = "ppocrv5_dict.txt";
         public static int cpu_threads = 30; //CPU预测时的线程数
         private static bool visualize = true;//是否对结果进行可视化，为true时，预测结果会保存在output文件夹下。
@@ -59,7 +59,7 @@ namespace WinFormsApp.Services
             para.rec_infer = Path.Combine(modelsPath, rec_infer);
             para.keyFile = Path.Combine(modelsPath, keys);
 
-            OCRParameter oCRParameter = new OCRParameter();
+            OCRParameter oCRParameter = OCRParameter.CreateDefault();
             oCRParameter.use_gpu = use_gpu;
             oCRParameter.gpu_id = gpu_id;
             oCRParameter.gpu_mem = gpu_mem;

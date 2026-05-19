@@ -13,6 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 using System;
+using System.Collections.Generic;
+using System.IO;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Reflection;
+#endif
 using System.Runtime.InteropServices;
 
 namespace CoreOCROnnx.SDK
@@ -23,6 +28,80 @@ namespace CoreOCROnnx.SDK
     internal class OCRSDK
     {
         internal const string dllFileName = "PaddleOCROnnx.dll";
+        private static readonly List<IntPtr> nativeHandles = new List<IntPtr>();
+
+        static OCRSDK()
+        {
+            ConfigureNativeDllLoading();
+        }
+
+        private static void ConfigureNativeDllLoading()
+        {
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            TryLoadLocalDll(baseDirectory, "onnxruntime.dll");
+
+#if NETCOREAPP3_0_OR_GREATER
+            try
+            {
+                NativeLibrary.SetDllImportResolver(typeof(OCRSDK).Assembly, ResolveNativeLibrary);
+            }
+            catch (InvalidOperationException)
+            {
+                // A resolver can only be registered once per assembly.
+            }
+#else
+            TryLoadLocalDll(baseDirectory, dllFileName);
+#endif
+        }
+
+#if NETCOREAPP3_0_OR_GREATER
+        private static IntPtr ResolveNativeLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            if (!libraryName.Equals(dllFileName, StringComparison.OrdinalIgnoreCase))
+            {
+                return IntPtr.Zero;
+            }
+
+            string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dllFileName);
+            if (!File.Exists(dllPath))
+            {
+                return IntPtr.Zero;
+            }
+
+            IntPtr handle = NativeLibrary.Load(dllPath);
+            nativeHandles.Add(handle);
+            return handle;
+        }
+#endif
+
+        private static void TryLoadLocalDll(string baseDirectory, string dllName)
+        {
+            string dllPath = Path.Combine(baseDirectory, dllName);
+            if (!File.Exists(dllPath))
+            {
+                return;
+            }
+
+#if NETCOREAPP3_0_OR_GREATER
+            IntPtr handle = NativeLibrary.Load(dllPath);
+#else
+            IntPtr handle = NativeMethods.LoadLibrary(dllPath);
+#endif
+            if (handle == IntPtr.Zero)
+            {
+                return;
+            }
+            nativeHandles.Add(handle);
+        }
+
+#if !NETCOREAPP3_0_OR_GREATER
+        private static class NativeMethods
+        {
+            [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+            internal static extern IntPtr LoadLibrary(string lpFileName);
+        }
+#endif
+
         /// <summary>
         /// 获取错误提示
         /// </summary>
@@ -44,6 +123,7 @@ namespace CoreOCROnnx.SDK
         /// <returns></returns>
 
         [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool Init(string det_infer, string cls_infer, string rec_infer, string keyfile, OCRParameter ocrpara);
         /// <summary>
         /// 初始化OCR文字识别
@@ -55,6 +135,7 @@ namespace CoreOCROnnx.SDK
         /// <param name="parjson">json参数</param>
         /// <returns></returns>
         [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool Initjson(string det_infer, string cls_infer, string rec_infer, string keyfile, string parjson);
         /// <summary>
         /// OCR识别

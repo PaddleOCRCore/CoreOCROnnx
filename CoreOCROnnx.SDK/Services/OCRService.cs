@@ -80,7 +80,7 @@ namespace CoreOCROnnx.SDK
         {
             string det_infer = "ch_PP-OCRv5_mobile_det.onnx";//OCR检测模型
             string rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR识别模型
-            string cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
+            string cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
             string keys = "ppocrv5_dict.txt";
             bool use_gpu = false;//是否使用GPU
             int cpu_mem = 0;//CPU内存占用上限，单位MB。-1表示不限制，达到上限将自动回收
@@ -92,7 +92,7 @@ namespace CoreOCROnnx.SDK
             para.rec_infer = Path.Combine(modelsPath, rec_infer);
             para.keyFile = Path.Combine(modelsPath, keys);
 
-            OCRParameter oCRParameter = new OCRParameter();
+            OCRParameter oCRParameter = OCRParameter.CreateDefault();
             oCRParameter.use_gpu = use_gpu;
             oCRParameter.gpu_id = gpu_id;
             oCRParameter.gpu_mem = 4000;

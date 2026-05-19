@@ -72,19 +72,26 @@ namespace WinFormsApp
                 OCREngine.use_gpu = use_gpu;
                 OCREngine.gpu_id = gpu_id;
                 OCREngine.cpu_threads = cpu_threads;
-                if (model_type == 0)
+                switch (model_type)
                 {
-                    OCREngine.det_infer = "ch_PP-OCRv5_mobile_det.onnx";//OCR V5检测模型
-                    OCREngine.rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR V5识别模型
-                    OCREngine.cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
-                    OCREngine.keys = "ppocrv5_dict.txt";
-                }
-                else
-                {
-                    OCREngine.det_infer = "ch_PP-OCRv4_det_infer.onnx";//OCR V4检测模型
-                    OCREngine.rec_infer = "ch_PP-OCRv4_rec_infer.onnx";//OCR V4识别模型
-                    OCREngine.cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
-                    OCREngine.keys = "ppocr_keys_v1.txt";
+                    case 0:
+                        OCREngine.det_infer = "ch_PP-OCRv5_mobile_det.onnx";//OCR V5检测模型
+                        OCREngine.rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR V5识别模型
+                        OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
+                        OCREngine.keys = "ppocrv5_dict.txt";
+                        break;
+                    case 1:
+                        OCREngine.det_infer = "ch_PP-OCRv5_det_server.onnx";//OCR V5检测模型
+                        OCREngine.rec_infer = "ch_PP-OCRv5_rec_server.onnx";//OCR V5识别模型
+                        OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
+                        OCREngine.keys = "ppocrv5_dict.txt";
+                        break;
+                    case 2:
+                        OCREngine.det_infer = "ch_PP-OCRv4_det_infer.onnx";//OCR V4检测模型
+                        OCREngine.rec_infer = "ch_PP-OCRv4_rec_infer.onnx";//OCR V4识别模型
+                        OCREngine.cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
+                        OCREngine.keys = "ppocr_keys_v1.txt";
+                        break;
                 }
                 string initmsg = OCREngine.GetOCREngine();
                 if (string.IsNullOrEmpty(initmsg))
