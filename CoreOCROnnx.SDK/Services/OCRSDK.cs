@@ -113,6 +113,29 @@ namespace CoreOCROnnx.SDK
         internal static extern void FreeResultBuffer(IntPtr ptr);
 
         /// <summary>
+        /// 获取加密授权申请码，返回值需调用FreeResultBuffer释放
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        internal static extern IntPtr GetLicenseRequestCode();
+
+        /// <summary>
+        /// 激活授权文件
+        /// </summary>
+        /// <param name="licensefile">授权文件路径</param>
+        /// <returns></returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ActivateLicense(string licensefile);
+
+        /// <summary>
+        /// 获取当前授权状态JSON，返回值需调用FreeResultBuffer释放
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        internal static extern IntPtr GetLicenseStatus();
+
+        /// <summary>
         /// 初始化OCR文字识别
         /// </summary>
         /// <param name="det_infer"></param>

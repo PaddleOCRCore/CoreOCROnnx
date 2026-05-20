@@ -35,6 +35,31 @@ namespace CoreOCROnnx.SDK
         bool Init(InitParamater para);
 
         /// <summary>
+        /// 获取当前机器的加密授权申请码
+        /// </summary>
+        /// <returns>授权申请码</returns>
+        string GetLicenseRequestCode();
+
+        /// <summary>
+        /// 激活授权文件
+        /// </summary>
+        /// <param name="licenseFile">授权文件路径</param>
+        /// <returns>激活成功返回true，失败返回false</returns>
+        bool ActivateLicense(string licenseFile);
+
+        /// <summary>
+        /// 获取当前授权状态JSON
+        /// </summary>
+        /// <returns>授权状态JSON字符串</returns>
+        string GetLicenseStatus();
+
+        /// <summary>
+        /// 获取当前授权状态
+        /// </summary>
+        /// <returns>授权状态对象</returns>
+        LicenseStatus GetLicenseStatusInfo();
+
+        /// <summary>
         /// 对图像文件进行文本识别
         /// </summary>
         /// <param name="imagefile">图像文件</param>

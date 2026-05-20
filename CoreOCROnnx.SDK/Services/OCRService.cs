@@ -157,6 +157,89 @@ namespace CoreOCROnnx.SDK
                 throw new OCRException($"初始化失败: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// 获取当前机器的加密授权申请码
+        /// </summary>
+        /// <returns></returns>
+        public string GetLicenseRequestCode()
+        {
+            IntPtr ptrResult = IntPtr.Zero;
+            try
+            {
+                ptrResult = OCRSDK.GetLicenseRequestCode();
+                if (ptrResult == IntPtr.Zero)
+                {
+                    return string.Empty;
+                }
+
+                return MarshalUtf8.PtrToStringUTF8(ptrResult);
+            }
+            finally
+            {
+                if (ptrResult != IntPtr.Zero)
+                {
+                    OCRSDK.FreeResultBuffer(ptrResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 激活授权文件
+        /// </summary>
+        /// <param name="licenseFile">授权文件路径</param>
+        /// <returns></returns>
+        public bool ActivateLicense(string licenseFile)
+        {
+            if (string.IsNullOrWhiteSpace(licenseFile))
+            {
+                return false;
+            }
+
+            return OCRSDK.ActivateLicense(licenseFile);
+        }
+
+        /// <summary>
+        /// 获取当前授权状态JSON
+        /// </summary>
+        /// <returns></returns>
+        public string GetLicenseStatus()
+        {
+            IntPtr ptrResult = IntPtr.Zero;
+            try
+            {
+                ptrResult = OCRSDK.GetLicenseStatus();
+                if (ptrResult == IntPtr.Zero)
+                {
+                    return string.Empty;
+                }
+
+                return MarshalUtf8.PtrToStringUTF8(ptrResult);
+            }
+            finally
+            {
+                if (ptrResult != IntPtr.Zero)
+                {
+                    OCRSDK.FreeResultBuffer(ptrResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取当前授权状态对象
+        /// </summary>
+        /// <returns></returns>
+        public LicenseStatus GetLicenseStatusInfo()
+        {
+            string json = GetLicenseStatus();
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
+            return DeObject<LicenseStatus>(json);
+        }
+
         /// <summary>
         /// 对图像文件进行文本识别
         /// </summary>
