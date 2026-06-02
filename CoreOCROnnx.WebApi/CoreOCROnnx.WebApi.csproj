@@ -34,6 +34,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="D:\Develop\OCRDevSource\PaddleOCROnnx\PaddleOCROnnxWebApi\CoreOCROnnx.WebApi\..\..\PaddleOCROnnxCMake\build_windows_x64_DML\bin\Release\DirectML.dll" />
+    <None Remove="D:\Develop\OCRDevSource\PaddleOCROnnx\PaddleOCROnnxWebApi\CoreOCROnnx.WebApi\..\..\PaddleOCROnnxCMake\build_windows_x64_DML\bin\Release\onnxruntime.dll" />
+    <None Remove="D:\Develop\OCRDevSource\PaddleOCROnnx\PaddleOCROnnxWebApi\CoreOCROnnx.WebApi\..\..\PaddleOCROnnxCMake\build_windows_x64_DML\bin\Release\onnxruntime_providers_shared.dll" />
+    <None Remove="D:\Develop\OCRDevSource\PaddleOCROnnx\PaddleOCROnnxWebApi\CoreOCROnnx.WebApi\..\..\PaddleOCROnnxCMake\build_windows_x64_DML\bin\Release\PaddleOCROnnx.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="StartOCRApi.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

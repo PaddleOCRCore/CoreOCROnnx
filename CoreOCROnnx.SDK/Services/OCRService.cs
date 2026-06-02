@@ -296,6 +296,97 @@ namespace CoreOCROnnx.SDK
                 throw ex;
             }
         }
+
+        /// <summary>
+        /// 初始化YOLO模型
+        /// </summary>
+        /// <param name="modelPath">YOLO ONNX模型路径</param>
+        /// <param name="parameterJson">YOLO初始化参数JSON</param>
+        /// <returns>初始化成功返回true，失败抛出OCRException</returns>
+        public bool YoloInitJson(string modelPath, string parameterJson)
+        {
+            try
+            {
+                bool ret = OCRSDK.YoloInitJson(modelPath, parameterJson);
+                if (!ret)
+                {
+                    var error = GetError();
+                    throw new OCRException($"YOLO初始化失败: {error}");
+                }
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                throw new OCRException($"YOLO初始化失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// YOLO检测图片文件，返回YOLO JSON v2字符串
+        /// </summary>
+        /// <param name="imagefile">图像文件</param>
+        /// <returns>YOLO JSON结果</returns>
+        public string YoloDetect(string imagefile)
+        {
+            var ptrResult = OCRSDK.YoloDetect(imagefile);
+            return GetNativeStringResult(ptrResult, "YOLO检测");
+        }
+
+        /// <summary>
+        /// YOLO检测图片字节，返回YOLO JSON v2字符串
+        /// </summary>
+        /// <param name="imagebyte">图像字节</param>
+        /// <returns>YOLO JSON结果</returns>
+        public string YoloDetect(byte[] imagebyte)
+        {
+            if (imagebyte == null)
+            {
+                throw new OCRException("YOLO检测失败: imagebyte不能为空");
+            }
+            var ptrResult = OCRSDK.YoloDetectByte(imagebyte, imagebyte.LongLength);
+            return GetNativeStringResult(ptrResult, "YOLO检测");
+        }
+
+        /// <summary>
+        /// YOLO检测Mat，返回YOLO JSON v2字符串
+        /// </summary>
+        /// <param name="ptr_cvmat">Mat指针</param>
+        /// <returns>YOLO JSON结果</returns>
+        public string YoloDetectMat(IntPtr ptr_cvmat)
+        {
+            var ptrResult = OCRSDK.YoloDetectMat(ptr_cvmat);
+            return GetNativeStringResult(ptrResult, "YOLO检测");
+        }
+
+        /// <summary>
+        /// YOLO检测Base64图片，返回YOLO JSON v2字符串
+        /// </summary>
+        /// <param name="base64">Base64图片</param>
+        /// <returns>YOLO JSON结果</returns>
+        public string YoloDetectBase64(string base64)
+        {
+            var ptrResult = OCRSDK.YoloDetectBase64(base64);
+            return GetNativeStringResult(ptrResult, "YOLO检测");
+        }
+
+        /// <summary>
+        /// 释放YOLO模型
+        /// </summary>
+        /// <returns>错误信息，成功为空字符串</returns>
+        public string YoloFreeEngine()
+        {
+            string lastErr = "";
+            try
+            {
+                OCRSDK.YoloFreeEngine();
+            }
+            catch (Exception e)
+            {
+                lastErr = e.Message;
+            }
+            return lastErr;
+        }
+
         private OCRResult GetResult(IntPtr ptrResult)
         {
             OCRResult result = new OCRResult();
@@ -334,6 +425,35 @@ namespace CoreOCROnnx.SDK
                 }
             }
             return result;
+        }
+
+        private string GetNativeStringResult(IntPtr ptrResult, string operationName)
+        {
+            if (ptrResult == IntPtr.Zero)
+            {
+                var lastErr = GetError();
+                if (!string.IsNullOrEmpty(lastErr))
+                {
+                    throw new OCRException(operationName + "内部错误：" + lastErr);
+                }
+                return string.Empty;
+            }
+
+            try
+            {
+                return MarshalUtf8.PtrToStringUTF8(ptrResult);
+            }
+            catch (Exception ex)
+            {
+                throw new OCRException(operationName + "结果转换失败:" + ex.Message);
+            }
+            finally
+            {
+                if (ptrResult != IntPtr.Zero)
+                {
+                    OCRSDK.FreeResultBuffer(ptrResult);
+                }
+            }
         }
 
         /// <summary>

@@ -84,6 +84,49 @@ namespace CoreOCROnnx.SDK
         /// <param name="base64"></param>
         /// <returns></returns>
         OCRResult DetectBase64(string base64);
+
+        /// <summary>
+        /// 初始化YOLO模型
+        /// </summary>
+        /// <param name="modelPath">YOLO ONNX模型路径</param>
+        /// <param name="parameterJson">YOLO初始化参数JSON</param>
+        /// <returns>初始化成功返回true</returns>
+        bool YoloInitJson(string modelPath, string parameterJson);
+
+        /// <summary>
+        /// YOLO检测图片文件，返回YOLO JSON v2字符串
+        /// </summary>
+        /// <param name="imagefile">图像文件</param>
+        /// <returns>YOLO JSON结果</returns>
+        string YoloDetect(string imagefile);
+
+        /// <summary>
+        /// YOLO检测图片字节，返回YOLO JSON v2字符串
+        /// </summary>
+        /// <param name="imagebyte">图像字节</param>
+        /// <returns>YOLO JSON结果</returns>
+        string YoloDetect(byte[] imagebyte);
+
+        /// <summary>
+        /// YOLO检测Mat，返回YOLO JSON v2字符串
+        /// </summary>
+        /// <param name="ptr_cvmat">Mat指针</param>
+        /// <returns>YOLO JSON结果</returns>
+        string YoloDetectMat(IntPtr ptr_cvmat);
+
+        /// <summary>
+        /// YOLO检测Base64图片，返回YOLO JSON v2字符串
+        /// </summary>
+        /// <param name="base64">Base64图片</param>
+        /// <returns>YOLO JSON结果</returns>
+        string YoloDetectBase64(string base64);
+
+        /// <summary>
+        /// 释放YOLO模型
+        /// </summary>
+        /// <returns>错误信息，成功为空字符串</returns>
+        string YoloFreeEngine();
+
         /// <summary>
         /// 获取错误原因
         /// </summary>

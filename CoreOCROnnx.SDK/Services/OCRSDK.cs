@@ -199,5 +199,55 @@ namespace CoreOCROnnx.SDK
         [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
         internal static extern int FreeEngine();
 
+        /// <summary>
+        /// 初始化YOLO模型，parameterJson为YOLO初始化参数JSON
+        /// </summary>
+        /// <param name="modelPath">YOLO ONNX模型路径</param>
+        /// <param name="parameterJson">YOLO初始化参数JSON</param>
+        /// <returns></returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool YoloInitJson(string modelPath, string parameterJson);
+
+        /// <summary>
+        /// YOLO检测图片文件，返回JSON字符串，返回值需调用FreeResultBuffer释放
+        /// </summary>
+        /// <param name="filename">图片文件路径</param>
+        /// <returns></returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        internal static extern IntPtr YoloDetect(string filename);
+
+        /// <summary>
+        /// YOLO检测Mat，返回JSON字符串，返回值需调用FreeResultBuffer释放
+        /// </summary>
+        /// <param name="cvmat">Mat指针</param>
+        /// <returns></returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        internal static extern IntPtr YoloDetectMat(IntPtr cvmat);
+
+        /// <summary>
+        /// YOLO检测图片字节，返回JSON字符串，返回值需调用FreeResultBuffer释放
+        /// </summary>
+        /// <param name="imagebyte">图片字节码</param>
+        /// <param name="size">大小</param>
+        /// <returns></returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        internal static extern IntPtr YoloDetectByte(byte[] imagebyte, long size);
+
+        /// <summary>
+        /// YOLO检测Base64图片，返回JSON字符串，返回值需调用FreeResultBuffer释放
+        /// </summary>
+        /// <param name="base64">Base64图片</param>
+        /// <returns></returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        internal static extern IntPtr YoloDetectBase64(string base64);
+
+        /// <summary>
+        /// 释放YOLO实例
+        /// </summary>
+        /// <returns></returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        internal static extern int YoloFreeEngine();
+
     }
 }
