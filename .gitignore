@@ -180,3 +180,4 @@ opencv_world470d.dll
 /CoreOCROnnx.SDK/obj/Release
 /CoreOCROnnx.SDK/obj
 /x64
+/Demo/Python/__pycache__
