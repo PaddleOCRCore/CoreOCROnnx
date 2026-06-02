@@ -14,14 +14,4 @@
     <ProjectReference Include="..\..\CoreOCROnnx.SDK\CoreOCROnnx.SDK.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <DmlNativeDir>$(MSBuildProjectDirectory)\..\..\..\PaddleOCROnnxCMake\build_windows_x64_DML\bin\Release\</DmlNativeDir>
-  </PropertyGroup>
-
-  <ItemGroup Condition="Exists('$(DmlNativeDir)PaddleOCROnnx.dll')">
-    <None Include="$(DmlNativeDir)PaddleOCROnnx.dll;$(DmlNativeDir)onnxruntime.dll;$(DmlNativeDir)onnxruntime_providers_shared.dll;$(DmlNativeDir)DirectML.dll">
-      <Link>%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>

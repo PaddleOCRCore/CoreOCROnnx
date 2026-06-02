@@ -67,7 +67,7 @@
             // 
             buttonInit.Location = new Point(606, 23);
             buttonInit.Name = "buttonInit";
-            buttonInit.Size = new Size(87, 60);
+            buttonInit.Size = new Size(87, 29);
             buttonInit.TabIndex = 0;
             buttonInit.Text = "初始化OCR";
             buttonInit.UseVisualStyleBackColor = true;
@@ -78,7 +78,7 @@
             buttonRec.Enabled = false;
             buttonRec.Location = new Point(699, 22);
             buttonRec.Name = "buttonRec";
-            buttonRec.Size = new Size(120, 60);
+            buttonRec.Size = new Size(214, 60);
             buttonRec.TabIndex = 1;
             buttonRec.Text = "OCR文本识别";
             buttonRec.UseVisualStyleBackColor = true;
@@ -139,9 +139,9 @@
             // buttonFreeEngine
             // 
             buttonFreeEngine.Enabled = false;
-            buttonFreeEngine.Location = new Point(825, 23);
+            buttonFreeEngine.Location = new Point(606, 54);
             buttonFreeEngine.Name = "buttonFreeEngine";
-            buttonFreeEngine.Size = new Size(87, 60);
+            buttonFreeEngine.Size = new Size(87, 29);
             buttonFreeEngine.TabIndex = 23;
             buttonFreeEngine.Text = "释放OCR";
             buttonFreeEngine.UseVisualStyleBackColor = true;
