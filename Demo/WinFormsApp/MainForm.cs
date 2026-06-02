@@ -1,4 +1,4 @@
-// Copyright (c) 2025 PaddleOCRCore All Rights Reserved.
+﻿// Copyright (c) 2025 PaddleOCRCore All Rights Reserved.
 // https://github.com/PaddleOCRCore/PaddleOCRApi.git
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +14,16 @@
 // limitations under the License.
 
 using CoreOCROnnx.SDK;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Media;
 using System.Net.Http;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -32,6 +36,8 @@ namespace WinFormsApp
     {
         StringBuilder message = new StringBuilder();
         private readonly IOCRService ocrService;
+        private bool yoloInitialized = false;
+        private string yoloModelPath = "";
         public static bool use_gpu = false;//是否使用GPU
         public static int gpu_id = 0;//GPUId
         public static int cpu_threads = 30; //CPU预测时的线程数
@@ -52,6 +58,8 @@ namespace WinFormsApp
                 comboBoxuse_gpu.SelectedIndex = 0;
                 comboBoxJson.SelectedIndex = 0;
                 comboBoxModel.SelectedIndex = 0;
+                comboBoxYoloModelType.SelectedIndex = 0;
+                comboBoxYoloUseGpu.SelectedIndex = use_gpu ? 1 : 0;
                 RecFilepath = Path.Combine(Application.StartupPath, "output");
                 if (!Directory.Exists(RecFilepath))
                 {
@@ -104,7 +112,7 @@ namespace WinFormsApp
                 }
                 if (initmsg.IndexOf("初始化成功") >= 0)
                 {
-                    LogMessage($"{DateTime.Now:HH:mm:ss.fff}:更换模型请选释放OCR");
+                    LogMessage($"{DateTime.Now:HH:mm:ss.fff}:更换模型请先释放OCR");
                     this.buttonInit.Enabled = false;
                     this.buttonRec.Enabled = true;
                     this.buttonFreeEngine.Enabled = true;
@@ -134,7 +142,7 @@ namespace WinFormsApp
                 //Mat image = Cv2.ImRead(filePath, ImreadModes.Color);
                 OCRResult ocrResult = ocrService.Detect(filePath);
                 //OCRResult ocrResult = ocrService.DetectMat(image.CvPtr);使用OpenCvSharp4时,可传入DetectMat(image.CvPtr)
-                result = ocrResult.StrRes.Replace("\n",Environment.NewLine);
+                result = ocrResult.StrRes.Replace("\n", Environment.NewLine);
                 var endTime = DateTime.Now;
                 LogMessage($"结束时间: {endTime:HH:mm:ss.fff}");
                 LogMessage($"OCR总用时: {ocrResult.DetectTime} 毫秒");
@@ -151,6 +159,197 @@ namespace WinFormsApp
             return result;
         }
 
+        private void buttonBrowseYolo_Click(object? sender, EventArgs e)
+        {
+            using OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "ONNX模型(*.onnx)|*.onnx|所有文件(*.*)|*.*";
+            dialog.Multiselect = false;
+            if (dialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            yoloModelPath = dialog.FileName;
+            if (textBoxYoloModel != null)
+            {
+                textBoxYoloModel.Text = yoloModelPath;
+            }
+        }
+
+        private int GetYoloModelType()
+        {
+            return comboBoxYoloModelType?.SelectedIndex switch
+            {
+                0 => 1,
+                1 => 2,
+                2 => 3,
+                3 => 7,
+                4 => 8,
+                _ => 1
+            };
+        }
+
+        private string BuildYoloParameterJson()
+        {
+            bool yoloUseGpu = comboBoxYoloUseGpu?.SelectedIndex == 1;
+            int yoloGpuId = Convert.ToInt32(numericUpDownYoloGpuId?.Value ?? 0);
+            int yoloThreads = Convert.ToInt32(numericUpDownYoloThreads?.Value ?? 1);
+            decimal confidence = numericUpDownYoloConfidence?.Value ?? 0.25M;
+            decimal iou = numericUpDownYoloIou?.Value ?? 0.45M;
+            bool visualize = checkBoxYoloVisualize?.Checked ?? true;
+            bool enableLog = checkBoxYoloLog?.Checked ?? false;
+
+            return JsonConvert.SerializeObject(new
+            {
+                model_type = GetYoloModelType(),
+                use_gpu = yoloUseGpu,
+                gpu_id = yoloGpuId,
+                num_threads = yoloThreads,
+                confidence_threshold = Convert.ToSingle(confidence, CultureInfo.InvariantCulture),
+                iou_threshold = Convert.ToSingle(iou, CultureInfo.InvariantCulture),
+                visualize,
+                enable_log = enableLog
+            });
+        }
+
+        private void buttonYoloInit_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(yoloModelPath) || !File.Exists(yoloModelPath))
+                {
+                    buttonBrowseYolo_Click(sender, e);
+                }
+                if (string.IsNullOrWhiteSpace(yoloModelPath) || !File.Exists(yoloModelPath))
+                {
+                    LogYoloMessage("请选择正确的YOLO ONNX模型");
+                    return;
+                }
+
+                string parameterJson = BuildYoloParameterJson();
+                ocrService.YoloInitJson(yoloModelPath, parameterJson);
+                yoloInitialized = true;
+                if (buttonYoloInit != null) buttonYoloInit.Enabled = false;
+                if (buttonYoloDetect != null) buttonYoloDetect.Enabled = true;
+                if (buttonYoloFree != null) buttonYoloFree.Enabled = true;
+                LogYoloMessage($"{DateTime.Now:HH:mm:ss.fff}:YOLO初始化成功");
+                LogYoloMessage(parameterJson);
+            }
+            catch (Exception ex)
+            {
+                LogYoloMessage($"{DateTime.Now:HH:mm:ss.fff}:{ex.Message}");
+            }
+        }
+
+        private void buttonYoloDetect_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (!yoloInitialized)
+                {
+                    LogYoloMessage("YOLO未初始化");
+                    return;
+                }
+
+                using OpenFileDialog dialog = new OpenFileDialog();
+                dialog.Filter = "图片文件(*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|所有文件(*.*)|*.*";
+                dialog.Multiselect = true;
+                if (dialog.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+
+                foreach (string file in dialog.FileNames)
+                {
+                    DetectYolo(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogYoloMessage($"{DateTime.Now:HH:mm:ss.fff}:{ex.Message}");
+            }
+        }
+        private void DetectYolo(string filePath)
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            LogYoloMessage($"开始时间: {DateTime.Now:HH:mm:ss.fff}");
+            string json = ocrService.YoloDetect(filePath);
+            stopwatch.Stop();
+            LogYoloMessage($"Image: {Path.GetFileName(filePath)}");
+            LogYoloMessage($"结束时间: {DateTime.Now:HH:mm:ss.fff}");
+            LogYoloMessage($"YOLO识别耗时 {stopwatch.ElapsedMilliseconds}毫秒");
+            LogYoloMessage(FormatJsonSafe(json));
+            LogMessage("===============================================");
+            string imageToShow = filePath;
+            try
+            {
+                string? visPath = Newtonsoft.Json.Linq.JObject.Parse(json)["vis_path"]?.ToString();
+                if (!string.IsNullOrWhiteSpace(visPath))
+                {
+                    string fullVisPath = Path.IsPathRooted(visPath)
+                        ? visPath
+                        : Path.Combine(Application.StartupPath, visPath);
+                    if (File.Exists(fullVisPath))
+                    {
+                        imageToShow = fullVisPath;
+                    }
+                }
+            }
+            catch
+            {
+                string outputImage = Path.Combine(Application.StartupPath, "output", Path.GetFileName(filePath));
+                if (File.Exists(outputImage))
+                {
+                    imageToShow = outputImage;
+                }
+            }
+            var image = ImageTools.LoadImage(imageToShow);
+            pictureBoxYolo?.Invoke((MethodInvoker)delegate
+            {
+                pictureBoxYolo.Image = image;
+            });
+        }
+
+        private void buttonYoloFree_Click(object? sender, EventArgs e)
+        {
+            string msg = ocrService.YoloFreeEngine();
+            yoloInitialized = false;
+            if (buttonYoloInit != null) buttonYoloInit.Enabled = true;
+            if (buttonYoloDetect != null) buttonYoloDetect.Enabled = false;
+            if (buttonYoloFree != null) buttonYoloFree.Enabled = false;
+            LogYoloMessage(string.IsNullOrEmpty(msg)
+                ? $"{DateTime.Now:HH:mm:ss.fff}:YOLO引擎释放成功"
+                : $"{DateTime.Now:HH:mm:ss.fff}:{msg}");
+        }
+
+        private void LogYoloMessage(string infoValue)
+        {
+            TextBox? target = textBoxYoloResult;
+            if (target == null)
+            {
+                LogMessage(infoValue);
+                return;
+            }
+
+            if (target.InvokeRequired)
+            {
+                target.BeginInvoke(new Action(() =>
+                {
+                    target.AppendText(infoValue);
+                    target.AppendText(Environment.NewLine);
+                    target.SelectionStart = target.Text.Length;
+                    target.ScrollToCaret();
+                }));
+            }
+            else
+            {
+                target.AppendText(infoValue);
+                target.AppendText(Environment.NewLine);
+                target.SelectionStart = target.Text.Length;
+                target.ScrollToCaret();
+            }
+        }
+
         private void buttonRec_Click(object sender, EventArgs e)
         {
             try
@@ -160,7 +359,7 @@ namespace WinFormsApp
                 string result = "";
                 string recFileName = "";
                 OpenFileDialog OpenFileDialog1 = new OpenFileDialog();
-                OpenFileDialog1.Filter = "所有文件(*.jpg)|*.*|jpg(*.jpg)|*.png|png(*.png)|*.png|bmp(*.bmp)|*.bmp|jpeg(*.jpeg)|*.jpeg";
+                OpenFileDialog1.Filter = "图片文件(*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|所有文件(*.*)|*.*";
                 OpenFileDialog1.Multiselect = true;
                 if (DialogResult.OK == OpenFileDialog1.ShowDialog())
                 {
@@ -208,7 +407,7 @@ namespace WinFormsApp
             try
             {
                 OpenFileDialog OpenFileDialog1 = new OpenFileDialog();
-                OpenFileDialog1.Filter = "所有文件(*.jpg)|*.*|jpg(*.jpg)|*.png|png(*.png)|*.png|bmp(*.bmp)|*.bmp|jpeg(*.jpeg)|*.jpeg";
+                OpenFileDialog1.Filter = "图片文件(*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|所有文件(*.*)|*.*";
                 OpenFileDialog1.Multiselect = false;
                 if (DialogResult.OK == OpenFileDialog1.ShowDialog())
                 {
@@ -230,10 +429,10 @@ namespace WinFormsApp
             {
                 if (string.IsNullOrEmpty(this.textBoxApiAddress.Text.Trim()))
                 {
-                    LogMessage($"{DateTime.Now:HH:mm:ss.fff}:WebApi地址不能为空！");
+                    LogMessage($"{DateTime.Now:HH:mm:ss.fff}:WebApi地址不能为空");
                 }
                 OpenFileDialog OpenFileDialog1 = new OpenFileDialog();
-                OpenFileDialog1.Filter = "所有文件(*.jpg)|*.*|jpg(*.jpg)|*.png|png(*.png)|*.png|bmp(*.bmp)|*.bmp|jpeg(*.jpeg)|*.jpeg";
+                OpenFileDialog1.Filter = "图片文件(*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|所有文件(*.*)|*.*";
                 OpenFileDialog1.Multiselect = false;
                 if (DialogResult.OK == OpenFileDialog1.ShowDialog())
                 {
@@ -356,12 +555,35 @@ namespace WinFormsApp
                 this.buttonInit.Enabled = true;
                 this.buttonRec.Enabled = false;
                 this.buttonFreeEngine.Enabled = false;
-                LogMessage($"{DateTime.Now:HH:mm:ss.fff}:OCR释放成功！");
+                LogMessage($"{DateTime.Now:HH:mm:ss.fff}:OCR释放成功");
             }
             else
             {
                 LogMessage($"{DateTime.Now:HH:mm:ss.fff}:{initmsg}");
             }
         }
+        public static string FormatJsonSafe(string json)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                return System.Text.Json.JsonSerializer.Serialize(doc, new System.Text.Json.JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                });
+            }
+            catch
+            {
+                return Regex.Replace(
+                    json,
+                    @"\\u([0-9a-fA-F]{4})",
+                    match => ((char)Convert.ToInt32(match.Groups[1].Value, 16)).ToString())
+                    .Replace("\\r\\n", Environment.NewLine)
+                    .Replace("\\n", Environment.NewLine)
+                    .Replace("\\r", Environment.NewLine);
+            }
+        }
     }
 }
+

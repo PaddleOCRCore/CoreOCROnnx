@@ -54,6 +54,33 @@
             comboBoxuse_gpu = new ComboBox();
             pictureBoxImg = new PictureBox();
             groupBox2 = new GroupBox();
+            tabControlMain = new TabControl();
+            tabPageOcr = new TabPage();
+            tabPageYolo = new TabPage();
+            groupBoxYolo = new GroupBox();
+            labelYoloModel = new Label();
+            textBoxYoloModel = new TextBox();
+            buttonBrowseYolo = new Button();
+            labelYoloType = new Label();
+            comboBoxYoloModelType = new ComboBox();
+            labelYoloGpu = new Label();
+            comboBoxYoloUseGpu = new ComboBox();
+            labelYoloGpuId = new Label();
+            numericUpDownYoloGpuId = new NumericUpDown();
+            labelYoloThreads = new Label();
+            numericUpDownYoloThreads = new NumericUpDown();
+            labelYoloConf = new Label();
+            numericUpDownYoloConfidence = new NumericUpDown();
+            labelYoloIou = new Label();
+            numericUpDownYoloIou = new NumericUpDown();
+            checkBoxYoloVisualize = new CheckBox();
+            checkBoxYoloLog = new CheckBox();
+            buttonYoloInit = new Button();
+            buttonYoloDetect = new Button();
+            buttonYoloFree = new Button();
+            groupBoxYoloImage = new GroupBox();
+            pictureBoxYolo = new PictureBox();
+            textBoxYoloResult = new TextBox();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDowncpu_mem).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownThread).BeginInit();
@@ -61,6 +88,16 @@
             ((System.ComponentModel.ISupportInitialize)numDowngpu_id).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImg).BeginInit();
             groupBox2.SuspendLayout();
+            tabControlMain.SuspendLayout();
+            tabPageOcr.SuspendLayout();
+            tabPageYolo.SuspendLayout();
+            groupBoxYolo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownYoloGpuId).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownYoloThreads).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownYoloConfidence).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownYoloIou).BeginInit();
+            groupBoxYoloImage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxYolo).BeginInit();
             SuspendLayout();
             // 
             // buttonInit
@@ -342,17 +379,308 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "图片";
             // 
+            // tabControlMain
+            // 
+            tabControlMain.Controls.Add(tabPageOcr);
+            tabControlMain.Controls.Add(tabPageYolo);
+            tabControlMain.Dock = DockStyle.Fill;
+            tabControlMain.Location = new Point(0, 0);
+            tabControlMain.Name = "tabControlMain";
+            tabControlMain.SelectedIndex = 0;
+            tabControlMain.Size = new Size(1093, 683);
+            tabControlMain.TabIndex = 7;
+            // 
+            // tabPageOcr
+            // 
+            tabPageOcr.Controls.Add(groupBox2);
+            tabPageOcr.Controls.Add(groupBox1);
+            tabPageOcr.Controls.Add(textBoxResult);
+            tabPageOcr.Location = new Point(4, 26);
+            tabPageOcr.Name = "tabPageOcr";
+            tabPageOcr.Padding = new Padding(3);
+            tabPageOcr.Size = new Size(1085, 653);
+            tabPageOcr.TabIndex = 0;
+            tabPageOcr.Text = "OCR";
+            tabPageOcr.UseVisualStyleBackColor = true;
+            // 
+            // tabPageYolo
+            // 
+            tabPageYolo.Controls.Add(groupBoxYolo);
+            tabPageYolo.Controls.Add(groupBoxYoloImage);
+            tabPageYolo.Controls.Add(textBoxYoloResult);
+            tabPageYolo.Location = new Point(4, 26);
+            tabPageYolo.Name = "tabPageYolo";
+            tabPageYolo.Padding = new Padding(3);
+            tabPageYolo.Size = new Size(1085, 653);
+            tabPageYolo.TabIndex = 1;
+            tabPageYolo.Text = "YOLO";
+            tabPageYolo.UseVisualStyleBackColor = true;
+            // 
+            // groupBoxYolo
+            // 
+            groupBoxYolo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBoxYolo.Controls.Add(labelYoloModel);
+            groupBoxYolo.Controls.Add(comboBoxYoloModelType);
+            groupBoxYolo.Controls.Add(textBoxYoloModel);
+            groupBoxYolo.Controls.Add(buttonBrowseYolo);
+            groupBoxYolo.Controls.Add(labelYoloType);
+            groupBoxYolo.Controls.Add(labelYoloGpu);
+            groupBoxYolo.Controls.Add(comboBoxYoloUseGpu);
+            groupBoxYolo.Controls.Add(labelYoloGpuId);
+            groupBoxYolo.Controls.Add(numericUpDownYoloGpuId);
+            groupBoxYolo.Controls.Add(labelYoloThreads);
+            groupBoxYolo.Controls.Add(numericUpDownYoloThreads);
+            groupBoxYolo.Controls.Add(labelYoloConf);
+            groupBoxYolo.Controls.Add(numericUpDownYoloConfidence);
+            groupBoxYolo.Controls.Add(labelYoloIou);
+            groupBoxYolo.Controls.Add(numericUpDownYoloIou);
+            groupBoxYolo.Controls.Add(checkBoxYoloVisualize);
+            groupBoxYolo.Controls.Add(checkBoxYoloLog);
+            groupBoxYolo.Controls.Add(buttonYoloInit);
+            groupBoxYolo.Controls.Add(buttonYoloDetect);
+            groupBoxYolo.Controls.Add(buttonYoloFree);
+            groupBoxYolo.Location = new Point(12, 12);
+            groupBoxYolo.Name = "groupBoxYolo";
+            groupBoxYolo.Size = new Size(1069, 125);
+            groupBoxYolo.TabIndex = 0;
+            groupBoxYolo.TabStop = false;
+            groupBoxYolo.Text = "YOLO功能选项";
+            // 
+            // labelYoloModel
+            // 
+            labelYoloModel.AutoSize = true;
+            labelYoloModel.Location = new Point(16, 30);
+            labelYoloModel.Name = "labelYoloModel";
+            labelYoloModel.Size = new Size(68, 17);
+            labelYoloModel.TabIndex = 0;
+            labelYoloModel.Text = "模型文件：";
+            // 
+            // textBoxYoloModel
+            // 
+            textBoxYoloModel.Location = new Point(92, 26);
+            textBoxYoloModel.Name = "textBoxYoloModel";
+            textBoxYoloModel.ReadOnly = true;
+            textBoxYoloModel.Size = new Size(363, 23);
+            textBoxYoloModel.TabIndex = 1;
+            // 
+            // buttonBrowseYolo
+            // 
+            buttonBrowseYolo.Location = new Point(461, 26);
+            buttonBrowseYolo.Name = "buttonBrowseYolo";
+            buttonBrowseYolo.Size = new Size(80, 25);
+            buttonBrowseYolo.TabIndex = 2;
+            buttonBrowseYolo.Text = "选择";
+            buttonBrowseYolo.UseVisualStyleBackColor = true;
+            buttonBrowseYolo.Click += buttonBrowseYolo_Click;
+            // 
+            // labelYoloType
+            // 
+            labelYoloType.AutoSize = true;
+            labelYoloType.Location = new Point(16, 91);
+            labelYoloType.Name = "labelYoloType";
+            labelYoloType.Size = new Size(68, 17);
+            labelYoloType.TabIndex = 3;
+            labelYoloType.Text = "模型类型：";
+            // 
+            // comboBoxYoloModelType
+            // 
+            comboBoxYoloModelType.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxYoloModelType.Items.AddRange(new object[] { "Detect", "Pose", "Cls", "Seg", "OBB" });
+            comboBoxYoloModelType.Location = new Point(92, 87);
+            comboBoxYoloModelType.Name = "comboBoxYoloModelType";
+            comboBoxYoloModelType.Size = new Size(100, 25);
+            comboBoxYoloModelType.TabIndex = 4;
+            // 
+            // labelYoloGpu
+            // 
+            labelYoloGpu.AutoSize = true;
+            labelYoloGpu.Location = new Point(18, 59);
+            labelYoloGpu.Name = "labelYoloGpu";
+            labelYoloGpu.Size = new Size(68, 17);
+            labelYoloGpu.TabIndex = 5;
+            labelYoloGpu.Text = "推理设备：";
+            // 
+            // comboBoxYoloUseGpu
+            // 
+            comboBoxYoloUseGpu.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxYoloUseGpu.Items.AddRange(new object[] { "CPU", "GPU" });
+            comboBoxYoloUseGpu.Location = new Point(92, 56);
+            comboBoxYoloUseGpu.Name = "comboBoxYoloUseGpu";
+            comboBoxYoloUseGpu.Size = new Size(100, 25);
+            comboBoxYoloUseGpu.TabIndex = 6;
+            // 
+            // labelYoloGpuId
+            // 
+            labelYoloGpuId.AutoSize = true;
+            labelYoloGpuId.Location = new Point(200, 60);
+            labelYoloGpuId.Name = "labelYoloGpuId";
+            labelYoloGpuId.Size = new Size(63, 17);
+            labelYoloGpuId.TabIndex = 7;
+            labelYoloGpuId.Text = "GPU_ID：";
+            // 
+            // numericUpDownYoloGpuId
+            // 
+            numericUpDownYoloGpuId.Location = new Point(269, 57);
+            numericUpDownYoloGpuId.Maximum = new decimal(new int[] { 16, 0, 0, 0 });
+            numericUpDownYoloGpuId.Name = "numericUpDownYoloGpuId";
+            numericUpDownYoloGpuId.Size = new Size(53, 23);
+            numericUpDownYoloGpuId.TabIndex = 8;
+            // 
+            // labelYoloThreads
+            // 
+            labelYoloThreads.AutoSize = true;
+            labelYoloThreads.Location = new Point(349, 60);
+            labelYoloThreads.Name = "labelYoloThreads";
+            labelYoloThreads.Size = new Size(44, 17);
+            labelYoloThreads.TabIndex = 9;
+            labelYoloThreads.Text = "线程：";
+            // 
+            // numericUpDownYoloThreads
+            // 
+            numericUpDownYoloThreads.Location = new Point(395, 57);
+            numericUpDownYoloThreads.Maximum = new decimal(new int[] { 128, 0, 0, 0 });
+            numericUpDownYoloThreads.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            numericUpDownYoloThreads.Name = "numericUpDownYoloThreads";
+            numericUpDownYoloThreads.Size = new Size(60, 23);
+            numericUpDownYoloThreads.TabIndex = 10;
+            numericUpDownYoloThreads.Value = new decimal(new int[] { 30, 0, 0, 0 });
+            // 
+            // labelYoloConf
+            // 
+            labelYoloConf.AutoSize = true;
+            labelYoloConf.Location = new Point(337, 90);
+            labelYoloConf.Name = "labelYoloConf";
+            labelYoloConf.Size = new Size(56, 17);
+            labelYoloConf.TabIndex = 11;
+            labelYoloConf.Text = "置信度：";
+            // 
+            // numericUpDownYoloConfidence
+            // 
+            numericUpDownYoloConfidence.DecimalPlaces = 2;
+            numericUpDownYoloConfidence.Increment = new decimal(new int[] { 5, 0, 0, 131072 });
+            numericUpDownYoloConfidence.Location = new Point(395, 88);
+            numericUpDownYoloConfidence.Maximum = new decimal(new int[] { 1, 0, 0, 0 });
+            numericUpDownYoloConfidence.Minimum = new decimal(new int[] { 1, 0, 0, 131072 });
+            numericUpDownYoloConfidence.Name = "numericUpDownYoloConfidence";
+            numericUpDownYoloConfidence.Size = new Size(60, 23);
+            numericUpDownYoloConfidence.TabIndex = 12;
+            numericUpDownYoloConfidence.Value = new decimal(new int[] { 25, 0, 0, 131072 });
+            // 
+            // labelYoloIou
+            // 
+            labelYoloIou.AutoSize = true;
+            labelYoloIou.Location = new Point(220, 92);
+            labelYoloIou.Name = "labelYoloIou";
+            labelYoloIou.Size = new Size(43, 17);
+            labelYoloIou.TabIndex = 13;
+            labelYoloIou.Text = "IOU：";
+            // 
+            // numericUpDownYoloIou
+            // 
+            numericUpDownYoloIou.DecimalPlaces = 2;
+            numericUpDownYoloIou.Increment = new decimal(new int[] { 5, 0, 0, 131072 });
+            numericUpDownYoloIou.Location = new Point(269, 88);
+            numericUpDownYoloIou.Maximum = new decimal(new int[] { 1, 0, 0, 0 });
+            numericUpDownYoloIou.Minimum = new decimal(new int[] { 1, 0, 0, 131072 });
+            numericUpDownYoloIou.Name = "numericUpDownYoloIou";
+            numericUpDownYoloIou.Size = new Size(53, 23);
+            numericUpDownYoloIou.TabIndex = 14;
+            numericUpDownYoloIou.Value = new decimal(new int[] { 45, 0, 0, 131072 });
+            // 
+            // checkBoxYoloVisualize
+            // 
+            checkBoxYoloVisualize.AutoSize = true;
+            checkBoxYoloVisualize.Checked = true;
+            checkBoxYoloVisualize.CheckState = CheckState.Checked;
+            checkBoxYoloVisualize.Location = new Point(461, 59);
+            checkBoxYoloVisualize.Name = "checkBoxYoloVisualize";
+            checkBoxYoloVisualize.Size = new Size(87, 21);
+            checkBoxYoloVisualize.TabIndex = 15;
+            checkBoxYoloVisualize.Text = "可视化输出";
+            checkBoxYoloVisualize.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxYoloLog
+            // 
+            checkBoxYoloLog.AutoSize = true;
+            checkBoxYoloLog.Location = new Point(461, 89);
+            checkBoxYoloLog.Name = "checkBoxYoloLog";
+            checkBoxYoloLog.Size = new Size(75, 21);
+            checkBoxYoloLog.TabIndex = 16;
+            checkBoxYoloLog.Text = "启用日志";
+            checkBoxYoloLog.UseVisualStyleBackColor = true;
+            // 
+            // buttonYoloInit
+            // 
+            buttonYoloInit.Location = new Point(558, 26);
+            buttonYoloInit.Name = "buttonYoloInit";
+            buttonYoloInit.Size = new Size(100, 35);
+            buttonYoloInit.TabIndex = 17;
+            buttonYoloInit.Text = "初始化YOLO";
+            buttonYoloInit.UseVisualStyleBackColor = true;
+            buttonYoloInit.Click += buttonYoloInit_Click;
+            // 
+            // buttonYoloDetect
+            // 
+            buttonYoloDetect.Enabled = false;
+            buttonYoloDetect.Location = new Point(664, 26);
+            buttonYoloDetect.Name = "buttonYoloDetect";
+            buttonYoloDetect.Size = new Size(122, 81);
+            buttonYoloDetect.TabIndex = 18;
+            buttonYoloDetect.Text = "YOLO识别";
+            buttonYoloDetect.UseVisualStyleBackColor = true;
+            buttonYoloDetect.Click += buttonYoloDetect_Click;
+            // 
+            // buttonYoloFree
+            // 
+            buttonYoloFree.Enabled = false;
+            buttonYoloFree.Location = new Point(558, 72);
+            buttonYoloFree.Name = "buttonYoloFree";
+            buttonYoloFree.Size = new Size(100, 35);
+            buttonYoloFree.TabIndex = 19;
+            buttonYoloFree.Text = "释放YOLO";
+            buttonYoloFree.UseVisualStyleBackColor = true;
+            buttonYoloFree.Click += buttonYoloFree_Click;
+            // 
+            // groupBoxYoloImage
+            // 
+            groupBoxYoloImage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            groupBoxYoloImage.Controls.Add(pictureBoxYolo);
+            groupBoxYoloImage.Location = new Point(12, 143);
+            groupBoxYoloImage.Name = "groupBoxYoloImage";
+            groupBoxYoloImage.Size = new Size(516, 507);
+            groupBoxYoloImage.TabIndex = 1;
+            groupBoxYoloImage.TabStop = false;
+            groupBoxYoloImage.Text = "YOLO图片";
+            // 
+            // pictureBoxYolo
+            // 
+            pictureBoxYolo.Dock = DockStyle.Fill;
+            pictureBoxYolo.Location = new Point(3, 19);
+            pictureBoxYolo.Name = "pictureBoxYolo";
+            pictureBoxYolo.Size = new Size(510, 485);
+            pictureBoxYolo.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxYolo.TabIndex = 0;
+            pictureBoxYolo.TabStop = false;
+            // 
+            // textBoxYoloResult
+            // 
+            textBoxYoloResult.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            textBoxYoloResult.Location = new Point(534, 143);
+            textBoxYoloResult.Multiline = true;
+            textBoxYoloResult.Name = "textBoxYoloResult";
+            textBoxYoloResult.ScrollBars = ScrollBars.Both;
+            textBoxYoloResult.Size = new Size(547, 507);
+            textBoxYoloResult.TabIndex = 2;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1093, 683);
-            Controls.Add(groupBox2);
-            Controls.Add(groupBox1);
-            Controls.Add(textBoxResult);
+            Controls.Add(tabControlMain);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "CoreOCROnnx识别Demo V2.0.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.git";
+            Text = "CoreOCROnnx识别Demo V4.0.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.git";
             Load += MainForm_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
@@ -362,8 +690,20 @@
             ((System.ComponentModel.ISupportInitialize)numDowngpu_id).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImg).EndInit();
             groupBox2.ResumeLayout(false);
+            tabControlMain.ResumeLayout(false);
+            tabPageOcr.ResumeLayout(false);
+            tabPageOcr.PerformLayout();
+            tabPageYolo.ResumeLayout(false);
+            tabPageYolo.PerformLayout();
+            groupBoxYolo.ResumeLayout(false);
+            groupBoxYolo.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownYoloGpuId).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownYoloThreads).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownYoloConfidence).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numericUpDownYoloIou).EndInit();
+            groupBoxYoloImage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBoxYolo).EndInit();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -394,5 +734,32 @@
         private TextBox textBoxApiAddress;
         private Button buttonPostFile;
         private Button buttonFreeEngine;
+        private TabControl tabControlMain;
+        private TabPage tabPageOcr;
+        private TabPage tabPageYolo;
+        private GroupBox groupBoxYolo;
+        private Label labelYoloModel;
+        private TextBox textBoxYoloModel;
+        private Button buttonBrowseYolo;
+        private Label labelYoloType;
+        private ComboBox comboBoxYoloModelType;
+        private Label labelYoloGpu;
+        private ComboBox comboBoxYoloUseGpu;
+        private Label labelYoloGpuId;
+        private NumericUpDown numericUpDownYoloGpuId;
+        private Label labelYoloThreads;
+        private NumericUpDown numericUpDownYoloThreads;
+        private Label labelYoloConf;
+        private NumericUpDown numericUpDownYoloConfidence;
+        private Label labelYoloIou;
+        private NumericUpDown numericUpDownYoloIou;
+        private CheckBox checkBoxYoloVisualize;
+        private CheckBox checkBoxYoloLog;
+        private Button buttonYoloInit;
+        private Button buttonYoloDetect;
+        private Button buttonYoloFree;
+        private GroupBox groupBoxYoloImage;
+        private PictureBox pictureBoxYolo;
+        private TextBox textBoxYoloResult;
     }
 }
