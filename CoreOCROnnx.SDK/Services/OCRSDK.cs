@@ -243,6 +243,74 @@ namespace CoreOCROnnx.SDK
         internal static extern IntPtr YoloDetectBase64(string base64);
 
         /// <summary>
+        /// YOLO检测图片文件，返回标准张量[bs, boxes, channels]连续float数组。
+        /// 调用成功后outData指向非托管内存，shape通常为[1, 8400, nc + 4]，使用完必须调用YoloFreeTensor释放。
+        /// </summary>
+        /// <param name="filename">图片文件路径</param>
+        /// <param name="outData">输出张量数据指针，按[bs, boxes, channels]连续展开</param>
+        /// <param name="outShape">输出shape数组，调用方需传入长度至少为3的long数组</param>
+        /// <param name="outShapeLen">输出shape维度数量，当前为3</param>
+        /// <param name="outElementCount">输出float元素总数</param>
+        /// <returns>成功返回true，失败返回false，可通过GetError获取错误信息</returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool YoloDetectTensor(string filename, out IntPtr outData,
+            [Out] long[] outShape, out int outShapeLen, out long outElementCount);
+
+        /// <summary>
+        /// YOLO检测Mat，返回标准张量[bs, boxes, channels]连续float数组。
+        /// 调用成功后outData指向非托管内存，使用完必须调用YoloFreeTensor释放。
+        /// </summary>
+        /// <param name="cvmat">Mat指针</param>
+        /// <param name="outData">输出张量数据指针，按[bs, boxes, channels]连续展开</param>
+        /// <param name="outShape">输出shape数组，调用方需传入长度至少为3的long数组</param>
+        /// <param name="outShapeLen">输出shape维度数量，当前为3</param>
+        /// <param name="outElementCount">输出float元素总数</param>
+        /// <returns>成功返回true，失败返回false，可通过GetError获取错误信息</returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool YoloDetectMatTensor(IntPtr cvmat, out IntPtr outData,
+            [Out] long[] outShape, out int outShapeLen, out long outElementCount);
+
+        /// <summary>
+        /// YOLO检测图片字节，返回标准张量[bs, boxes, channels]连续float数组。
+        /// 调用成功后outData指向非托管内存，使用完必须调用YoloFreeTensor释放。
+        /// </summary>
+        /// <param name="imagebyte">图片字节码</param>
+        /// <param name="size">大小</param>
+        /// <param name="outData">输出张量数据指针，按[bs, boxes, channels]连续展开</param>
+        /// <param name="outShape">输出shape数组，调用方需传入长度至少为3的long数组</param>
+        /// <param name="outShapeLen">输出shape维度数量，当前为3</param>
+        /// <param name="outElementCount">输出float元素总数</param>
+        /// <returns>成功返回true，失败返回false，可通过GetError获取错误信息</returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool YoloDetectByteTensor(byte[] imagebyte, long size, out IntPtr outData,
+            [Out] long[] outShape, out int outShapeLen, out long outElementCount);
+
+        /// <summary>
+        /// YOLO检测Base64图片，返回标准张量[bs, boxes, channels]连续float数组。
+        /// 调用成功后outData指向非托管内存，使用完必须调用YoloFreeTensor释放。
+        /// </summary>
+        /// <param name="base64">Base64图片</param>
+        /// <param name="outData">输出张量数据指针，按[bs, boxes, channels]连续展开</param>
+        /// <param name="outShape">输出shape数组，调用方需传入长度至少为3的long数组</param>
+        /// <param name="outShapeLen">输出shape维度数量，当前为3</param>
+        /// <param name="outElementCount">输出float元素总数</param>
+        /// <returns>成功返回true，失败返回false，可通过GetError获取错误信息</returns>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool YoloDetectBase64Tensor(string base64, out IntPtr outData,
+            [Out] long[] outShape, out int outShapeLen, out long outElementCount);
+
+        /// <summary>
+        /// 释放YOLO张量接口返回的非托管float数组内存。
+        /// </summary>
+        /// <param name="ptr">YoloDetectTensor系列接口返回的outData指针</param>
+        [DllImport(dllFileName, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        internal static extern void YoloFreeTensor(IntPtr ptr);
+
+        /// <summary>
         /// 释放YOLO实例
         /// </summary>
         /// <returns></returns>

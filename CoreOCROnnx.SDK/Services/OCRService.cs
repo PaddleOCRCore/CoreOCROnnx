@@ -18,57 +18,9 @@ using System.Data.Common;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using Newtonsoft.Json;
 
 namespace CoreOCROnnx.SDK
 {
-    /// <summary>
-    /// 跨版本 Marshal.UTF8 工具类
-    /// .NET Framework 没有 PtrToStringUTF8，这里统一提供。
-    /// </summary>
-    public static class MarshalUtf8
-    {
-        /// <summary>
-        /// 将 UTF-8 零结尾字节序列转换为托管字符串。
-        /// 支持 .NET Framework 2.0+ / .NET Core 1.x+ / .NET 5+
-        /// </summary>
-        public static string PtrToStringUTF8(IntPtr ptr)
-        {
-            if (ptr == IntPtr.Zero) return null;
-
-            // .NET 5+ 原生支持 PtrToStringUTF8
-#if NET5_0_OR_GREATER
-        return Marshal.PtrToStringUTF8(ptr);
-#else
-            return PtrToStringUTF8_Manual(ptr);
-#endif
-        }
-
-#if !NET5_0_OR_GREATER
-        /// <summary>
-        /// .NET Framework / Core 的手动实现
-        /// </summary>
-        private static string PtrToStringUTF8_Manual(IntPtr ptr)
-        {
-            // 1. 计算长度（到零字节为止）
-            int len = 0;
-            while (Marshal.ReadByte(ptr, len) != 0) len++;
-
-            // 2. 复制到托管数组
-            byte[] bytes = new byte[len];
-            Marshal.Copy(ptr, bytes, 0, len);
-
-            // 3. UTF-8 解码
-            return Encoding.UTF8.GetString(bytes);
-        }
-#endif
-    }
-    public class OCRException : Exception
-    {
-        public OCRException(string message) : base(message)
-        {
-        }
-    }
     public class OCRService : IOCRService
     {
         /// <summary>
@@ -164,24 +116,7 @@ namespace CoreOCROnnx.SDK
         /// <returns></returns>
         public string GetLicenseRequestCode()
         {
-            IntPtr ptrResult = IntPtr.Zero;
-            try
-            {
-                ptrResult = OCRSDK.GetLicenseRequestCode();
-                if (ptrResult == IntPtr.Zero)
-                {
-                    return string.Empty;
-                }
-
-                return MarshalUtf8.PtrToStringUTF8(ptrResult);
-            }
-            finally
-            {
-                if (ptrResult != IntPtr.Zero)
-                {
-                    OCRSDK.FreeResultBuffer(ptrResult);
-                }
-            }
+            return OcrServiceHelper.ReadNativeString(OCRSDK.GetLicenseRequestCode, OCRSDK.FreeResultBuffer);
         }
 
         /// <summary>
@@ -205,24 +140,7 @@ namespace CoreOCROnnx.SDK
         /// <returns></returns>
         public string GetLicenseStatus()
         {
-            IntPtr ptrResult = IntPtr.Zero;
-            try
-            {
-                ptrResult = OCRSDK.GetLicenseStatus();
-                if (ptrResult == IntPtr.Zero)
-                {
-                    return string.Empty;
-                }
-
-                return MarshalUtf8.PtrToStringUTF8(ptrResult);
-            }
-            finally
-            {
-                if (ptrResult != IntPtr.Zero)
-                {
-                    OCRSDK.FreeResultBuffer(ptrResult);
-                }
-            }
+            return OcrServiceHelper.ReadNativeString(OCRSDK.GetLicenseStatus, OCRSDK.FreeResultBuffer);
         }
 
         /// <summary>
@@ -237,7 +155,7 @@ namespace CoreOCROnnx.SDK
                 return null;
             }
 
-            return DeObject<LicenseStatus>(json);
+            return OcrServiceHelper.DeserializeLicenseStatus(json);
         }
 
         /// <summary>
@@ -370,6 +288,74 @@ namespace CoreOCROnnx.SDK
         }
 
         /// <summary>
+        /// YOLO检测图片文件，返回标准张量[bs, boxes, channels]。
+        /// </summary>
+        /// <param name="imagefile">图像文件</param>
+        /// <returns>YOLO张量结果</returns>
+        public YoloTensorResult YoloDetectTensor(string imagefile)
+        {
+            IntPtr dataPtr;
+            long[] shape = new long[3];
+            int shapeLen;
+            long elementCount;
+            bool ok = OCRSDK.YoloDetectTensor(imagefile, out dataPtr, shape, out shapeLen, out elementCount);
+            return OcrServiceHelper.GetYoloTensorResult(ok, dataPtr, shape, shapeLen, elementCount,
+                GetError, OCRSDK.YoloFreeTensor, "YOLO张量检测", message => new OCRException(message));
+        }
+
+        /// <summary>
+        /// YOLO检测图片字节，返回标准张量[bs, boxes, channels]。
+        /// </summary>
+        /// <param name="imagebyte">图像字节</param>
+        /// <returns>YOLO张量结果</returns>
+        public YoloTensorResult YoloDetectByteTensor(byte[] imagebyte)
+        {
+            if (imagebyte == null)
+            {
+                throw new OCRException("YOLO张量检测失败: imagebyte不能为空");
+            }
+            IntPtr dataPtr;
+            long[] shape = new long[3];
+            int shapeLen;
+            long elementCount;
+            bool ok = OCRSDK.YoloDetectByteTensor(imagebyte, imagebyte.LongLength, out dataPtr, shape, out shapeLen, out elementCount);
+            return OcrServiceHelper.GetYoloTensorResult(ok, dataPtr, shape, shapeLen, elementCount,
+                GetError, OCRSDK.YoloFreeTensor, "YOLO张量检测", message => new OCRException(message));
+        }
+
+        /// <summary>
+        /// YOLO检测Mat，返回标准张量[bs, boxes, channels]。
+        /// </summary>
+        /// <param name="ptr_cvmat">Mat指针</param>
+        /// <returns>YOLO张量结果</returns>
+        public YoloTensorResult YoloDetectMatTensor(IntPtr ptr_cvmat)
+        {
+            IntPtr dataPtr;
+            long[] shape = new long[3];
+            int shapeLen;
+            long elementCount;
+            bool ok = OCRSDK.YoloDetectMatTensor(ptr_cvmat, out dataPtr, shape, out shapeLen, out elementCount);
+            return OcrServiceHelper.GetYoloTensorResult(ok, dataPtr, shape, shapeLen, elementCount,
+                GetError, OCRSDK.YoloFreeTensor, "YOLO张量检测", message => new OCRException(message));
+        }
+
+        /// <summary>
+        /// YOLO检测Base64图片，返回标准张量[bs, boxes, channels]。
+        /// </summary>
+        /// <param name="base64">Base64图片</param>
+        /// <returns>YOLO张量结果</returns>
+        public YoloTensorResult YoloDetectBase64Tensor(string base64)
+        {
+            IntPtr dataPtr;
+            long[] shape = new long[3];
+            int shapeLen;
+            long elementCount;
+            bool ok = OCRSDK.YoloDetectBase64Tensor(base64, out dataPtr, shape, out shapeLen, out elementCount);
+            return OcrServiceHelper.GetYoloTensorResult(ok, dataPtr, shape, shapeLen, elementCount,
+                GetError, OCRSDK.YoloFreeTensor, "YOLO张量检测", message => new OCRException(message));
+        }
+
+        /// <summary>
         /// 释放YOLO模型
         /// </summary>
         /// <returns>错误信息，成功为空字符串</returns>
@@ -405,7 +391,7 @@ namespace CoreOCROnnx.SDK
                 json = MarshalUtf8.PtrToStringUTF8(ptrResult);
                 try
                 {
-                    result = DeObject<OCRResult>(json);
+                    result = OcrServiceHelper.DeserializeObject<OCRResult>(json);
                     result.JsonText = json;
                 }
                 catch (Exception e)
@@ -429,31 +415,8 @@ namespace CoreOCROnnx.SDK
 
         private string GetNativeStringResult(IntPtr ptrResult, string operationName)
         {
-            if (ptrResult == IntPtr.Zero)
-            {
-                var lastErr = GetError();
-                if (!string.IsNullOrEmpty(lastErr))
-                {
-                    throw new OCRException(operationName + "内部错误：" + lastErr);
-                }
-                return string.Empty;
-            }
-
-            try
-            {
-                return MarshalUtf8.PtrToStringUTF8(ptrResult);
-            }
-            catch (Exception ex)
-            {
-                throw new OCRException(operationName + "结果转换失败:" + ex.Message);
-            }
-            finally
-            {
-                if (ptrResult != IntPtr.Zero)
-                {
-                    OCRSDK.FreeResultBuffer(ptrResult);
-                }
-            }
+            return OcrServiceHelper.GetNativeStringResult(ptrResult, GetError, OCRSDK.FreeResultBuffer,
+                operationName, message => new OCRException(message));
         }
 
         /// <summary>
@@ -495,21 +458,6 @@ namespace CoreOCROnnx.SDK
                 lastErr = e.Message;
             }
             return lastErr;
-        }
-        /// <summary>
-        /// Json反序列化
-        /// </summary>
-        /// <typeparam name="T">反序列化的目标类型</typeparam>
-        /// <param name="json">JSON字符串</param>
-        /// <returns>反序列化后的对象</returns>
-        private static T DeObject<T>(string json)
-        {
-            if (string.IsNullOrEmpty(json)) return default(T);
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Auto,
-            };
-            return (T)JsonConvert.DeserializeObject(json, typeof(T), settings);
         }
     }
 }

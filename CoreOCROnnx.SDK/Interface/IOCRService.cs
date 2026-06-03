@@ -122,6 +122,34 @@ namespace CoreOCROnnx.SDK
         string YoloDetectBase64(string base64);
 
         /// <summary>
+        /// YOLO检测图片文件，返回标准张量[bs, boxes, channels]。
+        /// </summary>
+        /// <param name="imagefile">图像文件</param>
+        /// <returns>YOLO张量结果</returns>
+        YoloTensorResult YoloDetectTensor(string imagefile);
+
+        /// <summary>
+        /// YOLO检测图片字节，返回标准张量[bs, boxes, channels]。
+        /// </summary>
+        /// <param name="imagebyte">图像字节</param>
+        /// <returns>YOLO张量结果</returns>
+        YoloTensorResult YoloDetectByteTensor(byte[] imagebyte);
+
+        /// <summary>
+        /// YOLO检测Mat，返回标准张量[bs, boxes, channels]。
+        /// </summary>
+        /// <param name="ptr_cvmat">Mat指针</param>
+        /// <returns>YOLO张量结果</returns>
+        YoloTensorResult YoloDetectMatTensor(IntPtr ptr_cvmat);
+
+        /// <summary>
+        /// YOLO检测Base64图片，返回标准张量[bs, boxes, channels]。
+        /// </summary>
+        /// <param name="base64">Base64图片</param>
+        /// <returns>YOLO张量结果</returns>
+        YoloTensorResult YoloDetectBase64Tensor(string base64);
+
+        /// <summary>
         /// 释放YOLO模型
         /// </summary>
         /// <returns>错误信息，成功为空字符串</returns>
