@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             buttonInit = new Button();
             buttonRec = new Button();
             textBoxResult = new TextBox();
@@ -59,10 +60,10 @@
             tabPageYolo = new TabPage();
             groupBoxYolo = new GroupBox();
             labelYoloModel = new Label();
+            comboBoxYoloModelType = new ComboBox();
             textBoxYoloModel = new TextBox();
             buttonBrowseYolo = new Button();
             labelYoloType = new Label();
-            comboBoxYoloModelType = new ComboBox();
             labelYoloGpu = new Label();
             comboBoxYoloUseGpu = new ComboBox();
             labelYoloGpuId = new Label();
@@ -76,6 +77,7 @@
             checkBoxYoloVisualize = new CheckBox();
             checkBoxYoloLog = new CheckBox();
             buttonYoloInit = new Button();
+            buttonYoloDetectTensor = new Button();
             buttonYoloDetect = new Button();
             buttonYoloFree = new Button();
             groupBoxYoloImage = new GroupBox();
@@ -437,6 +439,7 @@
             groupBoxYolo.Controls.Add(checkBoxYoloVisualize);
             groupBoxYolo.Controls.Add(checkBoxYoloLog);
             groupBoxYolo.Controls.Add(buttonYoloInit);
+            groupBoxYolo.Controls.Add(buttonYoloDetectTensor);
             groupBoxYolo.Controls.Add(buttonYoloDetect);
             groupBoxYolo.Controls.Add(buttonYoloFree);
             groupBoxYolo.Location = new Point(12, 12);
@@ -454,6 +457,15 @@
             labelYoloModel.Size = new Size(68, 17);
             labelYoloModel.TabIndex = 0;
             labelYoloModel.Text = "模型文件：";
+            // 
+            // comboBoxYoloModelType
+            // 
+            comboBoxYoloModelType.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxYoloModelType.Items.AddRange(new object[] { "Detect", "Pose", "Cls", "Seg", "OBB" });
+            comboBoxYoloModelType.Location = new Point(92, 87);
+            comboBoxYoloModelType.Name = "comboBoxYoloModelType";
+            comboBoxYoloModelType.Size = new Size(100, 25);
+            comboBoxYoloModelType.TabIndex = 4;
             // 
             // textBoxYoloModel
             // 
@@ -481,15 +493,6 @@
             labelYoloType.Size = new Size(68, 17);
             labelYoloType.TabIndex = 3;
             labelYoloType.Text = "模型类型：";
-            // 
-            // comboBoxYoloModelType
-            // 
-            comboBoxYoloModelType.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboBoxYoloModelType.Items.AddRange(new object[] { "Detect", "Pose", "Cls", "Seg", "OBB" });
-            comboBoxYoloModelType.Location = new Point(92, 87);
-            comboBoxYoloModelType.Name = "comboBoxYoloModelType";
-            comboBoxYoloModelType.Size = new Size(100, 25);
-            comboBoxYoloModelType.TabIndex = 4;
             // 
             // labelYoloGpu
             // 
@@ -619,6 +622,17 @@
             buttonYoloInit.UseVisualStyleBackColor = true;
             buttonYoloInit.Click += buttonYoloInit_Click;
             // 
+            // buttonYoloDetectTensor
+            // 
+            buttonYoloDetectTensor.Enabled = false;
+            buttonYoloDetectTensor.Location = new Point(792, 26);
+            buttonYoloDetectTensor.Name = "buttonYoloDetectTensor";
+            buttonYoloDetectTensor.Size = new Size(122, 81);
+            buttonYoloDetectTensor.TabIndex = 18;
+            buttonYoloDetectTensor.Text = "YOLO识别Tensor";
+            buttonYoloDetectTensor.UseVisualStyleBackColor = true;
+            buttonYoloDetectTensor.Click += buttonYoloDetectTensor_Click;
+            // 
             // buttonYoloDetect
             // 
             buttonYoloDetect.Enabled = false;
@@ -626,7 +640,7 @@
             buttonYoloDetect.Name = "buttonYoloDetect";
             buttonYoloDetect.Size = new Size(122, 81);
             buttonYoloDetect.TabIndex = 18;
-            buttonYoloDetect.Text = "YOLO识别";
+            buttonYoloDetect.Text = "YOLO识别Json";
             buttonYoloDetect.UseVisualStyleBackColor = true;
             buttonYoloDetect.Click += buttonYoloDetect_Click;
             // 
@@ -678,6 +692,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1093, 683);
             Controls.Add(tabControlMain);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "CoreOCROnnx识别Demo V4.0.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.git";
@@ -761,5 +776,6 @@
         private GroupBox groupBoxYoloImage;
         private PictureBox pictureBoxYolo;
         private TextBox textBoxYoloResult;
+        private Button buttonYoloDetectTensor;
     }
 }

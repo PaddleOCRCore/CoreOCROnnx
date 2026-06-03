@@ -60,6 +60,11 @@ namespace WinFormsApp
                 comboBoxModel.SelectedIndex = 0;
                 comboBoxYoloModelType.SelectedIndex = 0;
                 comboBoxYoloUseGpu.SelectedIndex = use_gpu ? 1 : 0;
+
+
+                yoloModelPath = Path.Combine(Application.StartupPath, "models", "yolov8s.onnx");
+                textBoxYoloModel.Text = yoloModelPath;
+
                 RecFilepath = Path.Combine(Application.StartupPath, "output");
                 if (!Directory.Exists(RecFilepath))
                 {
@@ -231,6 +236,7 @@ namespace WinFormsApp
                 yoloInitialized = true;
                 if (buttonYoloInit != null) buttonYoloInit.Enabled = false;
                 if (buttonYoloDetect != null) buttonYoloDetect.Enabled = true;
+                if (buttonYoloDetectTensor != null) buttonYoloDetectTensor.Enabled = true;
                 if (buttonYoloFree != null) buttonYoloFree.Enabled = true;
                 LogYoloMessage($"{DateTime.Now:HH:mm:ss.fff}:YOLO初始化成功");
                 LogYoloMessage(parameterJson);
@@ -310,12 +316,189 @@ namespace WinFormsApp
             });
         }
 
+        private void buttonYoloDetectTensor_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!yoloInitialized)
+                {
+                    LogYoloMessage("YOLO未初始化");
+                    return;
+                }
+
+                using OpenFileDialog dialog = new OpenFileDialog();
+                dialog.Filter = "图片文件(*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|所有文件(*.*)|*.*";
+                dialog.Multiselect = true;
+                if (dialog.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+
+                foreach (string file in dialog.FileNames)
+                {
+                    DetectYoloTensor(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogYoloMessage($"{DateTime.Now:HH:mm:ss.fff}:{ex.Message}");
+            }
+        }
+
+        private void DetectYoloTensor(string filePath)
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            DateTime startTime = DateTime.Now;
+            LogYoloMessage($"开始时间: {startTime:HH:mm:ss.fff}");
+            YoloTensorResult tensor = ocrService.YoloDetectTensor(filePath);
+            stopwatch.Stop();
+
+            LogYoloMessage($"Image: {Path.GetFileName(filePath)}");
+            LogYoloMessage($"结束时间: {DateTime.Now:HH:mm:ss.fff}");
+            LogYoloMessage($"YOLO Tensor识别耗时 {stopwatch.ElapsedMilliseconds}毫秒");
+
+            List<YoloDetection> detections;
+            using (var sourceImage = System.Drawing.Image.FromFile(filePath))
+            {
+                detections = YoloTensorPostProcessor.Process(tensor, new YoloPostProcessOptions
+                {
+                    InputWidth = 640,
+                    InputHeight = 640,
+                    OriginalWidth = sourceImage.Width,
+                    OriginalHeight = sourceImage.Height,
+                    ConfidenceThreshold = Convert.ToSingle(numericUpDownYoloConfidence?.Value ?? 0.25M, CultureInfo.InvariantCulture),
+                    IouThreshold = Convert.ToSingle(numericUpDownYoloIou?.Value ?? 0.45M, CultureInfo.InvariantCulture),
+                    EnableNms = true,
+                    MaxDetections = 100
+                });
+            }
+
+            LogYoloMessage(FormatYoloTensorResult(tensor, detections));
+            LogYoloMessage("===============================================");
+
+            string imageToShow = FindLatestYoloTensorVisualization(startTime) ?? filePath;
+            var image = ImageTools.LoadImage(imageToShow);
+            pictureBoxYolo?.Invoke((MethodInvoker)delegate
+            {
+                pictureBoxYolo.Image = image;
+            });
+        }
+
+        private static string FormatYoloTensorResult(YoloTensorResult tensor, List<YoloDetection> detections)
+        {
+            StringBuilder builder = new StringBuilder();
+            if (tensor == null)
+            {
+                return "Tensor结果为空";
+            }
+
+            string shapeText = tensor.Shape == null ? "" : string.Join(", ", tensor.Shape);
+            builder.AppendLine($"Shape: [{shapeText}]");
+            builder.AppendLine($"ShapeLen: {tensor.ShapeLen}");
+            builder.AppendLine($"ElementCount: {tensor.ElementCount}");
+            if (tensor.Data == null || tensor.Shape == null || tensor.Shape.Length < 3)
+            {
+                builder.AppendLine("Tensor数据或Shape无效");
+                return builder.ToString();
+            }
+
+            long batch = tensor.Shape[0];
+            long boxes = tensor.Shape[1];
+            long channels = tensor.Shape[2];
+            builder.AppendLine($"Batch: {batch}, Boxes: {boxes}, Channels: {channels}");
+            builder.AppendLine("访问方式: data[(b * boxes + boxIndex) * channels + channelIndex]");
+            builder.AppendLine();
+            builder.AppendLine("前5个候选框(raw):");
+
+            int previewRows = (int)Math.Min(boxes, 5);
+            int previewChannels = (int)Math.Min(channels, 12);
+            for (int i = 0; i < previewRows; i++)
+            {
+                builder.Append($"[{i}] ");
+                for (int c = 0; c < previewChannels; c++)
+                {
+                    builder.Append(GetTensorValue(tensor.Data, boxes, channels, 0, i, c).ToString("0.####", CultureInfo.InvariantCulture));
+                    if (c < previewChannels - 1)
+                    {
+                        builder.Append(", ");
+                    }
+                }
+                if (channels > previewChannels)
+                {
+                    builder.Append(", ...");
+                }
+                builder.AppendLine();
+            }
+
+            builder.AppendLine();
+            builder.AppendLine($"Decode -> 阈值过滤 -> NMS -> 坐标映射 后检测数量: {detections.Count}");
+            builder.AppendLine("前20个检测框:");
+            int detectionPreviewCount = Math.Min(detections.Count, 20);
+            for (int i = 0; i < detectionPreviewCount; i++)
+            {
+                YoloDetection item = detections[i];
+                builder.AppendLine(
+                    $"{i + 1}. box={item.BoxIndex}, class={item.ClassId}, score={item.Confidence.ToString("0.####", CultureInfo.InvariantCulture)}, " +
+                    $"x={item.X.ToString("0.##", CultureInfo.InvariantCulture)}, y={item.Y.ToString("0.##", CultureInfo.InvariantCulture)}, " +
+                    $"w={item.Width.ToString("0.##", CultureInfo.InvariantCulture)}, h={item.Height.ToString("0.##", CultureInfo.InvariantCulture)}");
+            }
+
+            return builder.ToString();
+        }
+
+        private static float GetTensorValue(float[] data, long boxes, long channels, long batchIndex, long boxIndex, long channelIndex)
+        {
+            long index = (batchIndex * boxes + boxIndex) * channels + channelIndex;
+            if (index < 0 || index >= data.LongLength)
+            {
+                return 0.0f;
+            }
+            return data[index];
+        }
+
+        private string? FindLatestYoloTensorVisualization(DateTime startTime)
+        {
+            if (!(checkBoxYoloVisualize?.Checked ?? false))
+            {
+                return null;
+            }
+
+            string[] outputDirs =
+            {
+                Path.Combine(Application.StartupPath, "output"),
+                Path.Combine(Directory.GetCurrentDirectory(), "output")
+            };
+
+            string? latestPath = null;
+            DateTime latestTime = startTime;
+            foreach (string outputDir in outputDirs)
+            {
+                if (!Directory.Exists(outputDir))
+                {
+                    continue;
+                }
+
+                foreach (string file in Directory.GetFiles(outputDir, "yolo_tensor_*.png"))
+                {
+                    DateTime writeTime = File.GetLastWriteTime(file);
+                    if (writeTime >= latestTime)
+                    {
+                        latestTime = writeTime;
+                        latestPath = file;
+                    }
+                }
+            }
+
+            return latestPath;
+        }
+
         private void buttonYoloFree_Click(object? sender, EventArgs e)
         {
             string msg = ocrService.YoloFreeEngine();
             yoloInitialized = false;
             if (buttonYoloInit != null) buttonYoloInit.Enabled = true;
             if (buttonYoloDetect != null) buttonYoloDetect.Enabled = false;
+            if (buttonYoloDetectTensor != null) buttonYoloDetectTensor.Enabled = false;
             if (buttonYoloFree != null) buttonYoloFree.Enabled = false;
             LogYoloMessage(string.IsNullOrEmpty(msg)
                 ? $"{DateTime.Now:HH:mm:ss.fff}:YOLO引擎释放成功"
