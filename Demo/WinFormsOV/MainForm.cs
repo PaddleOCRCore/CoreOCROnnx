@@ -46,6 +46,7 @@ namespace WinFormsApp
         public static bool outPutJson = false;//是否输出JSON
         public static int recCount = 1; //OCR识别时同一张图片模拟调用接口次数
         public static int model_type = 0;//模型类型：0是V5，1是V4
+        private bool isOCRBusy;
         public MainForm()
         {
             InitializeComponent();
@@ -88,24 +89,36 @@ namespace WinFormsApp
                 switch (model_type)
                 {
                     case 0:
+                        OCREngine.det_infer = "PP-OCRv6_tiny_det_ov/inference.xml";//OCR V6检测模型
+                        OCREngine.rec_infer = "PP-OCRv6_tiny_det_ov/inference.xml";//OCR V6识别模型
+                        OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
+                        OCREngine.keys = "ppocrv5_dict.txt";
+                        break;
+                    case 1:
+                        OCREngine.det_infer = "PP-OCRv6_small_det_ov/inference.xml";//OCR V6检测模型
+                        OCREngine.rec_infer = "PP-OCRv6_small_rec_ov/inference.xml";//OCR V6识别模型
+                        OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
+                        OCREngine.keys = "ppocrv5_dict.txt";
+                        break;
+                    case 2:
                         OCREngine.det_infer = "PP-OCRv5_mobile_det_ov/inference.xml";//OCR V5检测模型
                         OCREngine.rec_infer = "PP-OCRv5_mobile_rec_ov/inference.xml";//OCR V5识别模型
                         OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
                         OCREngine.keys = "ppocrv5_dict.txt";
                         break;
-                    case 1:
+                    case 3:
                         OCREngine.det_infer = "PP-OCRv5_server_det_ov/inference.xml";//OCR V5检测模型
                         OCREngine.rec_infer = "PP-OCRv5_server_rec_ov/inference.xml";//OCR V5识别模型
                         OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
                         OCREngine.keys = "ppocrv5_dict.txt";
                         break;
-                    case 2:
+                    case 4:
                         OCREngine.det_infer = "PP-OCRv4_mobile_det_ov/inference.xml";//OCR V4检测模型
                         OCREngine.rec_infer = "PP-OCRv4_mobile_rec_ov/inference.xml";//OCR V4识别模型
                         OCREngine.cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
                         OCREngine.keys = "ppocr_keys_v1.txt";
                         break;
-                    case 3:
+                    case 5:
                         OCREngine.det_infer = "PP-OCRv4_server_det_ov/inference.xml";//OCR V4检测模型
                         OCREngine.rec_infer = "PP-OCRv4_server_rec_ov/inference.xml";//OCR V4识别模型
                         OCREngine.cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
@@ -124,15 +137,11 @@ namespace WinFormsApp
                 if (initmsg.IndexOf("初始化成功") >= 0)
                 {
                     LogMessage($"{DateTime.Now:HH:mm:ss.fff}:更换模型请先释放OCR");
-                    this.buttonInit.Enabled = false;
-                    this.buttonRec.Enabled = true;
-                    this.buttonFreeEngine.Enabled = true;
+                    SetOCRBusy(true);
                 }
                 else
                 {
-                    this.buttonInit.Enabled = true;
-                    this.buttonRec.Enabled = false;
-                    this.buttonFreeEngine.Enabled = false;
+                    SetOCRBusy(false);
                 }
             }
             catch (Exception ex)
@@ -741,9 +750,7 @@ namespace WinFormsApp
             string initmsg = ocrService.FreeEngine();
             if (string.IsNullOrEmpty(initmsg))
             {
-                this.buttonInit.Enabled = true;
-                this.buttonRec.Enabled = false;
-                this.buttonFreeEngine.Enabled = false;
+                SetOCRBusy(false);
                 LogMessage($"{DateTime.Now:HH:mm:ss.fff}:OCR释放成功");
             }
             else
@@ -772,6 +779,22 @@ namespace WinFormsApp
                     .Replace("\\n", Environment.NewLine)
                     .Replace("\\r", Environment.NewLine);
             }
+        }
+        private void SetOCRBusy(bool busy)
+        {
+            isOCRBusy = busy;
+            buttonInit.Enabled = !busy;
+            buttonFreeEngine.Enabled = busy;
+            buttonRec.Enabled = busy;
+            buttonPostFile.Enabled = busy;
+            buttonGetBase64.Enabled = !busy;
+            comboBoxModel.Enabled = !busy;
+            comboBoxuse_gpu.Enabled = !busy;
+            numericUpDownThread.Enabled = !busy;
+            numDowncpu_threads.Enabled = !busy;
+            numDowngpu_id.Enabled = !busy;
+            numericUpDowncpu_mem.Enabled = !busy;
+            buttonGetBase64.Enabled = true;
         }
     }
 }

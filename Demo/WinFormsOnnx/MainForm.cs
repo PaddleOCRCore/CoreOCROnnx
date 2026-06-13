@@ -45,7 +45,8 @@ namespace WinFormsApp
         public static string RecFilepath = "";
         public static bool outPutJson = false;//是否输出JSON
         public static int recCount = 1; //OCR识别时同一张图片模拟调用接口次数
-        public static int model_type = 0;//模型类型：0是V5，1是V4
+        public static int model_type = 0;//模型类型：01是V6，1是V5，2是V4
+        private bool isOCRBusy;
         public MainForm()
         {
             InitializeComponent();
@@ -88,18 +89,30 @@ namespace WinFormsApp
                 switch (model_type)
                 {
                     case 0:
+                        OCREngine.det_infer = "PP-OCRv6_tiny_det.onnx";//OCR V6检测模型
+                        OCREngine.rec_infer = "PP-OCRv6_tiny_rec.onnx";//OCR V6识别模型
+                        OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
+                        OCREngine.keys = "ppocrv6tiny_dict.txt";
+                        break;
+                    case 1:
+                        OCREngine.det_infer = "PP-OCRv6_small_det.onnx";//OCR V6检测模型
+                        OCREngine.rec_infer = "PP-OCRv6_small_rec.onnx";//OCR V6识别模型
+                        OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
+                        OCREngine.keys = "ppocrv6small_dict.txt";
+                        break;
+                    case 2:
                         OCREngine.det_infer = "ch_PP-OCRv5_mobile_det.onnx";//OCR V5检测模型
                         OCREngine.rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR V5识别模型
                         OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
                         OCREngine.keys = "ppocrv5_dict.txt";
                         break;
-                    case 1:
+                    case 3:
                         OCREngine.det_infer = "ch_PP-OCRv5_det_server.onnx";//OCR V5检测模型
                         OCREngine.rec_infer = "ch_PP-OCRv5_rec_server.onnx";//OCR V5识别模型
                         OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
                         OCREngine.keys = "ppocrv5_dict.txt";
                         break;
-                    case 2:
+                    case 4:
                         OCREngine.det_infer = "ch_PP-OCRv4_det_infer.onnx";//OCR V4检测模型
                         OCREngine.rec_infer = "ch_PP-OCRv4_rec_infer.onnx";//OCR V4识别模型
                         OCREngine.cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
@@ -118,15 +131,11 @@ namespace WinFormsApp
                 if (initmsg.IndexOf("初始化成功") >= 0)
                 {
                     LogMessage($"{DateTime.Now:HH:mm:ss.fff}:更换模型请先释放OCR");
-                    this.buttonInit.Enabled = false;
-                    this.buttonRec.Enabled = true;
-                    this.buttonFreeEngine.Enabled = true;
+                    SetOCRBusy(true);
                 }
                 else
                 {
-                    this.buttonInit.Enabled = true;
-                    this.buttonRec.Enabled = false;
-                    this.buttonFreeEngine.Enabled = false;
+                    SetOCRBusy(false);
                 }
             }
             catch (Exception ex)
@@ -735,9 +744,7 @@ namespace WinFormsApp
             string initmsg = ocrService.FreeEngine();
             if (string.IsNullOrEmpty(initmsg))
             {
-                this.buttonInit.Enabled = true;
-                this.buttonRec.Enabled = false;
-                this.buttonFreeEngine.Enabled = false;
+                SetOCRBusy(false);
                 LogMessage($"{DateTime.Now:HH:mm:ss.fff}:OCR释放成功");
             }
             else
@@ -766,6 +773,22 @@ namespace WinFormsApp
                     .Replace("\\n", Environment.NewLine)
                     .Replace("\\r", Environment.NewLine);
             }
+        }
+        private void SetOCRBusy(bool busy)
+        {
+            isOCRBusy = busy;
+            buttonInit.Enabled = !busy;
+            buttonFreeEngine.Enabled = busy;
+            buttonRec.Enabled = busy;
+            buttonPostFile.Enabled = busy;
+            buttonGetBase64.Enabled = !busy;
+            comboBoxModel.Enabled = !busy;
+            comboBoxuse_gpu.Enabled = !busy;
+            numericUpDownThread.Enabled = !busy;
+            numDowncpu_threads.Enabled = !busy;
+            numDowngpu_id.Enabled = !busy ;
+            numericUpDowncpu_mem.Enabled = !busy;
+            buttonGetBase64.Enabled = true;
         }
     }
 }
