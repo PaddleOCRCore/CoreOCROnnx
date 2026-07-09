@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using System;
 using CoreOCROnnx.SDK;
 using Microsoft.AspNetCore.Components.Web.Virtualization;
+using System.IO;
 
 namespace CoreOCROnnx.WebApi.Services
 {
@@ -27,6 +28,7 @@ namespace CoreOCROnnx.WebApi.Services
     {
         private readonly IOCRService _ocrService;
         private readonly OCRConfig _ocrConfig;
+        private bool _licenseActivated;
         public IOCRService OcrService => _ocrService;
 
         public OCREngine(IOCRService ocrService, OCRConfig ocrConfig)
@@ -35,6 +37,51 @@ namespace CoreOCROnnx.WebApi.Services
             _ocrConfig = ocrConfig;
             GetOCREngine();
         }
+
+        /// <summary>
+        /// 初始化前自动激活授权文件
+        /// </summary>
+        /// <returns></returns>
+        public bool ActivateLicenseIfExists()
+        {
+            if (_licenseActivated)
+            {
+                return true;
+            }
+
+            string licensePath = ResolvePath(_ocrConfig.OCRLicense);
+            if (string.IsNullOrWhiteSpace(licensePath) || !File.Exists(licensePath))
+            {
+                return false;
+            }
+
+            Console.WriteLine($"licensePath:{licensePath}");
+            _licenseActivated = _ocrService.ActivateLicense(licensePath);
+            Console.WriteLine(_licenseActivated ? "License activated!" : "License activation failed!");
+            return _licenseActivated;
+        }
+
+        /// <summary>
+        /// GPU初始化前自动激活授权文件，CPU模式不强制授权。
+        /// </summary>
+        /// <returns></returns>
+        public bool ActivateGpuLicenseIfExists()
+        {
+            return !_ocrConfig.use_gpu || ActivateLicenseIfExists();
+        }
+
+        private static string ResolvePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return string.Empty;
+            }
+
+            return Path.IsPathRooted(path)
+                ? path
+                : Path.Combine(AppContext.BaseDirectory, path);
+        }
+
         /// <summary>
         /// 初始化OCR引擎
         /// </summary>
@@ -74,6 +121,11 @@ namespace CoreOCROnnx.WebApi.Services
             string msg = "";
             try
             {
+                if (!ActivateGpuLicenseIfExists())
+                {
+                    return "授权文件未激活，无法初始化GPU模式";
+                }
+
                 _ocrService.Init(para);
             }
             catch (Exception ex)

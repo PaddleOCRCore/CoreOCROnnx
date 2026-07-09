@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreOCROnnx.SDK", "CoreOCRO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsOV", "Demo\WinFormsOV\WinFormsOV.csproj", "{B4B58BE7-62A3-C1BA-DDD5-B57A8D36D94B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreOCROnnx.WebApi.Tests", "CoreOCROnnx.WebApi.Tests\CoreOCROnnx.WebApi.Tests.csproj", "{5051D659-B492-441E-A860-5D6F42395771}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,18 @@ Global
 		{B4B58BE7-62A3-C1BA-DDD5-B57A8D36D94B}.Release|x64.Build.0 = Release|Any CPU
 		{B4B58BE7-62A3-C1BA-DDD5-B57A8D36D94B}.Release|x86.ActiveCfg = Release|Any CPU
 		{B4B58BE7-62A3-C1BA-DDD5-B57A8D36D94B}.Release|x86.Build.0 = Release|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Debug|x64.Build.0 = Debug|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Debug|x86.Build.0 = Debug|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Release|x64.ActiveCfg = Release|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Release|x64.Build.0 = Release|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Release|x86.ActiveCfg = Release|Any CPU
+		{5051D659-B492-441E-A860-5D6F42395771}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

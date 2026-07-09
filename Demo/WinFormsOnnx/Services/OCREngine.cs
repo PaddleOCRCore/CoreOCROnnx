@@ -38,12 +38,72 @@ namespace WinFormsApp.Services
         public static int gpu_mem = 4000;//GPU显存上限
         public static bool doAngle = true;//是否执行文字方向分类
         public static bool mostAngle = true;//是否使用方向分类器
+        public static string gpu_license = @"models\paddleocr.lic";//GPU授权文件
+        private static bool gpuLicenseActivated;
 
         public static int padding = 20; //图像预处理，在图片外周添加白边，用于提升识别率，文字框没有正确框住所有文字时，增加此值。
         public static int maxSideLen = 1024; //按图片最长边的长度，此值为0代表不缩放，例：1024，如果图片长边大于1024则把图像整
         public static float boxScoreThresh = 0.5f; //文字框置信度门限，文字框没有正确框住所有文字时，减小此值。
         public static float boxThresh = 0.3f; //自行实验
         public static float unClipRatio = 1.6f; //单个文字框大小倍率，越大时单个文字框越大。此项与图片的大小相关，越大的图片此值应该越大。
+
+        /// <summary>
+        /// 激活GPU授权文件
+        /// </summary>
+        /// <param name="licenseFile"></param>
+        /// <returns></returns>
+        public static bool ActivateLicense(string licenseFile)
+        {
+            if (string.IsNullOrWhiteSpace(licenseFile))
+            {
+                return false;
+            }
+
+            return ocrService.ActivateLicense(licenseFile);
+        }
+
+        /// <summary>
+        /// 自动激活授权文件，用于查看授权状态。
+        /// </summary>
+        /// <returns></returns>
+        public static bool ActivateLicenseIfExists()
+        {
+            string licensePath = ResolvePath(gpu_license);
+            if (string.IsNullOrWhiteSpace(licensePath) || !File.Exists(licensePath))
+            {
+                gpuLicenseActivated = false;
+                return false;
+            }
+
+            gpuLicenseActivated = ActivateLicense(licensePath);
+            return gpuLicenseActivated;
+        }
+
+        /// <summary>
+        /// GPU初始化前自动激活授权文件，CPU模式不强制授权。
+        /// </summary>
+        /// <returns></returns>
+        public static bool ActivateGpuLicenseIfExists()
+        {
+            return !use_gpu || ActivateLicenseIfExists();
+        }
+
+        private static string ResolvePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return string.Empty;
+            }
+
+            return Path.IsPathRooted(path)
+                ? path
+                : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+        }
+
+        public static string ResolveLicensePath()
+        {
+            return ResolvePath(gpu_license);
+        }
 
         /// <summary>
         /// 初始化OCR引擎
@@ -82,6 +142,11 @@ namespace WinFormsApp.Services
             string msg = "文本识别初始化成功";
             try
             {
+                if (!ActivateGpuLicenseIfExists())
+                {
+                    return "授权文件未激活，无法初始化GPU模式";
+                }
+
                 ocrService.Init(para);
             }
             catch (Exception ex)

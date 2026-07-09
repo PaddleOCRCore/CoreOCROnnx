@@ -27,7 +27,7 @@ namespace CoreOCROnnx.SDK
     /// </summary>
     internal class OCRSDK
     {
-        internal const string dllFileName = "PaddleOCROnnx.dll";
+        internal const string dllFileName = "PaddleOCROnnx";
         private static readonly List<IntPtr> nativeHandles = new List<IntPtr>();
 
         static OCRSDK()
@@ -38,7 +38,7 @@ namespace CoreOCROnnx.SDK
         private static void ConfigureNativeDllLoading()
         {
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            TryLoadLocalDll(baseDirectory, "onnxruntime.dll");
+            TryLoadLocalDll(baseDirectory, "onnxruntime");
 
 #if NETCOREAPP3_0_OR_GREATER
             try

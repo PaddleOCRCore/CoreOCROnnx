@@ -132,6 +132,10 @@ namespace CoreOCROnnx.WebApi
         /// </summary>
         public string keyFile { get; set; }
         /// <summary>
+        /// 授权文件路径，存在时初始化前自动激活
+        /// </summary>
+        public string OCRLicense { get; set; } = @"models\paddleocr.lic";
+        /// <summary>
         /// CPU内存占用上限，单位MB。-1表示不限制，达到上限将自动回收
         /// </summary>
         public int cpu_mem { get; set; } = 2000;
@@ -173,6 +177,7 @@ namespace CoreOCROnnx.WebApi
         public float unClipRatio { get; set; } = 1.6f;
         /// <summary>
         /// 只有图片倒置的情况下(旋转90~270度的图片)，才需要启用文字方向检测。
+        /// </summary>
         public bool doAngle { get; set; } = false;
         /// <summary>
         /// 启用(1) / 禁用(0) 角度投票(整张图片以最大可能文字方向来识别)，当禁用文字方向检测时，此项也不起作用。

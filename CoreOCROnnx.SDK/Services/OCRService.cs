@@ -30,10 +30,10 @@ namespace CoreOCROnnx.SDK
         /// <returns></returns>
         public string InitDefaultOCREngine(string modelsPath)
         {
-            string det_infer = "ch_PP-OCRv5_mobile_det.onnx";//OCR检测模型
-            string rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR识别模型
+            string det_infer = "PP-OCRv6_tiny_det.onnx";//OCR检测模型
+            string rec_infer = "PP-OCRv6_tiny_rec.onnx";//OCR识别模型
             string cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
-            string keys = "ppocrv5_dict.txt";
+            string keys = "ppocrv6tiny_dict.txt";
             bool use_gpu = false;//是否使用GPU
             int cpu_mem = 0;//CPU内存占用上限，单位MB。-1表示不限制，达到上限将自动回收
             int gpu_id = 0;//GPUId
