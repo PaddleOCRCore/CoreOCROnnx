@@ -188,7 +188,7 @@ namespace WinFormsApp
             try
             {
                 SetOCRBusy(true);
-
+                LogMessage($"{DateTime.Now:HH:mm:ss.fff}:正在初始化，请稍后，若后端采用TensorRT，初次初始化会自动转换模型为.engine格式。");
                 string initmsg = await Task.Run(() =>
                 {
                     OCREngine.use_gpu = use_gpu;

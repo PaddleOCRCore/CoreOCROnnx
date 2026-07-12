@@ -7,19 +7,19 @@
 </p>
 
 ## 一、简介
-免费离线极速版OCR组件,采用Onnx模型,支持CPU/GPU，支持C#/C++/java/Python/Go语言开发，支持多线程并发，基于OnnxRuntime封装的C++动态链接库。
+免费离线极速版OCR组件，支持 ONNX Runtime、OpenVINO 和 TensorRT 运行时包三选一。不同后端的设备支持范围不同：ONNX Runtime/OpenVINO 包可按发布说明使用 CPU 或对应 GPU，TensorRT 包仅支持 NVIDIA GPU。支持C#/C++/java/Python/Go语言开发及多线程并发。
 喜欢的请给本项目点一个免费的Star
 
-支持最新PP-OCRv5_mobile/PP-OCRv5_server模型，向下兼容V4/V3模型
+支持最新PP-OCRv6/PP-OCRv5模型，向下兼容V4/V3模型
 
 Paddle推理库版本请移步：[PaddleOCRCore/PaddleOCRApi](https://github.com/PaddleOCRCore/PaddleOCRApi)
 
 支持YOLO模型
 
 ## 二、运行环境
-项目运行环境为VS2022+.net8.0：
+项目运行环境为VS2022+.net10.0：
 
-1、核心文件PaddleOCROnnx.dll为C++动态链接库，支持CPU及GPU
+1、核心文件PaddleOCROnnx.dll为C++动态链接库。其 CPU/GPU 能力取决于所使用的后端运行时包；TensorRT 版仅支持 Windows/Linux x64 NVIDIA GPU。
 
 ### [WebApi接口文档](./PaddleOCROnnxApi/README.md)
 WebApi部署后可供前端调用。
@@ -40,9 +40,9 @@ WebApi部署后可供前端调用。
 | 通用参数                     | --     | -- |
 | cpu_mem                      | 4000   | CPU内存占用上限，单位MB。-1表示不限制                                                    |
 | cpu_math_library_num_threads | 10     | CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快                        |
-| use_gpu                      | false  | 是否使用GPU                                                                              |
-| gpu_id                       | 0      | GPU id，使用GPU时有效                                                                    |
-| gpu_mem                      | 4000   | 使用GPU时内存                                                                            |
+| use_gpu                      | false  | 是否使用GPU；TensorRT 后端始终使用 GPU，此参数仅为 ABI 兼容保留                          |
+| gpu_id                       | 0      | GPU id；TensorRT 后端表示 CUDA 设备编号                                                   |
+| gpu_mem                      | 4000   | GPU 内存参数；实际含义及支持情况取决于所使用的后端                                       |
 | padding                      | 20     | 图像预处理，在图片外周添加白边，用于提升识别率，文字框没有正确框住所有文字时，增加此值。 | 
 | maxSideLen                   | 1024   | 按图片最长边的长度，此值为0代表不缩放，例：1024，如果图片长边大于1024则把图像整          |
 | boxScoreThresh               | 0.5    | 文字框置信度门限，文字框没有正确框住所有文字时，减小此值。                               |
@@ -172,6 +172,55 @@ YoloFreeEngine
 - IR 模型传入的是 `.xml` 文件路径，不是模型目录
 - GPU 参数的含义为 OpenVINO Intel GPU
 
+## 五、TensorRT 后端说明
+
+TensorRT 后端通过 `PaddleOCROnnx.dll` 提供 PaddleOCR 与 YOLO 推理，保持现有 C API、调用约定和 C# `DllImport` 声明不变。调用方需要替换 TensorRT 版 DLL 及其运行时依赖，不需要修改接口名称。
+
+### 环境要求
+
+- Windows 10/11 x64 或 Linux x64
+- 64 位应用进程，不支持 x86/Win32
+- NVIDIA GPU，不支持 CPU、Intel GPU、AMD GPU、DirectML 或 OpenVINO 设备
+- TensorRT 11.1
+- CUDA 12.9 Runtime
+- 与 CUDA 12.9 和目标 GPU 兼容的 NVIDIA 显卡驱动
+- C# WebApi/WinForms 项目必须以 x64 运行，不能使用 `Any CPU` 选择 32 位进程
+
+TensorRT 始终在 NVIDIA GPU 上执行。OCR 与 YOLO 初始化都会进行 GPU 授权检查。历史参数 `use_gpu` 仅为 ABI 兼容保留，设置为 `false` 不会切换到 CPU；`gpu_id` 用于选择 CUDA 设备，默认值为 `0`。
+
+### Windows 部署文件
+
+部署时不要只复制 `PaddleOCROnnx.dll`。需要将构建输出目录中的 TensorRT 11.1 和 CUDA 12.9 Runtime DLL 一起复制到 WebApi/WinForms 程序运行目录，其中至少包括：
+
+```text
+PaddleOCROnnx.dll
+nvinfer_11.dll
+nvonnxparser_11.dll
+nvinfer_builder_resource_*.dll
+cudart64_*.dll
+```
+
+实际发布时应以 TensorRT 构建输出目录中的 DLL 集合为准，并保持这些文件位于 `PaddleOCROnnx.dll` 同目录或系统可搜索路径中。缺少依赖时，C# 通常会报告无法加载 DLL 或找不到指定模块。
+
+### 模型格式与 engine 缓存
+
+TensorRT 后端支持以下模型路径：
+
+- `.onnx`：首次初始化时解析 ONNX、选择适合当前 GPU 的 CUDA tactic，并在模型同目录生成 `.fp32.engine` 缓存。
+- `.engine` / `.plan`：直接加载 TensorRT 序列化 engine，不再执行 ONNX 构建。
+
+第一次从 ONNX 初始化可能需要数十秒，并占用较多 GPU 显存；缓存生成后，后续初始化会直接加载 engine，启动速度更快。源 ONNX 文件更新后，旧缓存会自动失效并重新构建。模型目录必须允许当前进程写入，否则无法保存 engine 缓存。
+
+TensorRT engine 与生成它的 TensorRT 版本、操作系统、GPU 架构及构建配置相关，不是可跨机器任意复用的通用模型格式。更换 GPU、升级 TensorRT/CUDA 或修改动态输入范围后，应删除旧 `.engine` 并在目标机器上重新生成。直接传入 `.engine`/`.plan` 时，如果反序列化失败，初始化会直接返回失败，不会回退到 ONNX。
+
+### 与其他后端的区别
+
+| 后端 | 设备 | 常用模型格式 | `use_gpu=false` |
+| ---- | ---- | ------------ | --------------- |
+| ONNX Runtime | 取决于发布包和执行提供程序 | `.onnx` | 可使用 CPU |
+| OpenVINO | CPU 或 Intel GPU，取决于插件 | `.onnx`、`.xml` + `.bin` | 使用 CPU |
+| TensorRT | 仅 NVIDIA GPU | `.onnx`、`.engine`、`.plan` | 仍使用 NVIDIA GPU |
+
 
 ## 开发交流群
 
@@ -186,6 +235,8 @@ YoloFreeEngine
 <img src="./CoreOCROnnx.SDK/OCRRuntime/donate.jpg" width="300px;" />
 
 ## 更新日志
+### v4.1.0 `2026.6.7`
+- 增加后端TensorRT支持，入群下载运行时。
 ### v4.0.0 `2026.6.7`
 - 增加Yolo支持，增加OpenVino支持
 ### v1.0.0 `2026.1.18`
