@@ -21,6 +21,16 @@ Paddle推理库版本请移步：[PaddleOCRCore/PaddleOCRApi](https://github.com
 
 1、核心文件PaddleOCROnnx.dll为C++动态链接库。其 CPU/GPU 能力取决于所使用的后端运行时包；TensorRT 版仅支持 Windows/Linux x64 NVIDIA GPU。
 
+### 运行时包下载
+
+请在 GitHub Release 中下载对应后端的运行时包，三选一：
+
+- ONNX Runtime 后端：[OCRRuntimeOnnx_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOnnx_v4.0.0.zip)
+- OpenVINO 后端：[OCRRuntimeOpenVino_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOpenVino_v4.0.0.zip)
+- TensorRT 后端：因TensorRT较大，百度网盘下载：[CoreOCROnnxApi4.1-TensorRT.zip](https://pan.baidu.com/s/1h8tyeGzG0dukzMVDUwPqWQ?pwd=bejk)
+
+将压缩包中的 `PaddleOCROnnx.dll` 及其同目录依赖文件复制到 C# 程序运行目录即可。当前发布包为 Windows x64，因此 C# 项目也应使用 x64 运行。
+
 ### [WebApi接口文档](./PaddleOCROnnxApi/README.md)
 WebApi部署后可供前端调用。
 
@@ -62,16 +72,6 @@ OpenVINO 后端支持：
 
 - PaddleOCR：检测、方向分类、文字识别
 - YOLO：detect、pose、classification、seg、obb 以及现有 Tensor 接口
-
-### 运行时包下载
-
-请在 GitHub Release 中下载对应后端的运行时包，二选一：
-
-- ONNX Runtime 后端：[OCRRuntimeOnnx_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOnnx_v4.0.0.zip)
-- OpenVINO 后端：[OCRRuntimeOpenVino_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOpenVino_v4.0.0.zip)
-- TensorRT 后端：因TensorRT较大，百度网盘下载：[CoreOCROnnxApi4.1-TensorRT.zip](https://pan.baidu.com/s/1h8tyeGzG0dukzMVDUwPqWQ?pwd=bejk)
-
-将压缩包中的 `PaddleOCROnnx.dll` 及其同目录依赖文件复制到 C# 程序运行目录即可。当前发布包为 Windows x64，因此 C# 项目也应使用 x64 运行。
 
 OpenVINO 后端的 GPU 表示 OpenVINO Intel GPU，不是 CUDA，也不是 DirectML。
 
