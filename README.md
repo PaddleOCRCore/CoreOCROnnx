@@ -1,4 +1,4 @@
-[<img src="https://img.shields.io/badge/Language-简体中文-red.svg">](README.md)
+[<img src="https://img.shields.io/badge/Language-简体中文-red.svg">](README.md) [<img src="https://img.shields.io/badge/Language-English-blue.svg">](README_EN.md)
 # CoreOCR离线OCR组件，支持onnx及yolo,支持C#/C++/java/Python/Go语言开发
 <p align="center">
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-dfd.svg"></a>
@@ -236,7 +236,7 @@ TensorRT engine 与生成它的 TensorRT 版本、操作系统、GPU 架构及�
 <img src="./CoreOCROnnx.SDK/OCRRuntime/donate.jpg" width="300px;" />
 
 ## 更新日志
-### v4.1.0 `2026.6.7`
+### v4.1.0 `2026.7.12`
 - 增加后端TensorRT支持，入群下载运行时。
 ### v4.0.0 `2026.6.7`
 - 增加Yolo支持，增加OpenVino支持
