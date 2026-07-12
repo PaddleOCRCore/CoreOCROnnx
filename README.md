@@ -69,6 +69,7 @@ OpenVINO 后端支持：
 
 - ONNX Runtime 后端：[OCRRuntimeOnnx_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOnnx_v4.0.0.zip)
 - OpenVINO 后端：[OCRRuntimeOpenVino_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOpenVino_v4.0.0.zip)
+- TensorRT 后端：因TensorRT较大，百度网盘下载：[CoreOCROnnxApi4.1-TensorRT.zip](https://pan.baidu.com/s/1h8tyeGzG0dukzMVDUwPqWQ?pwd=bejk)
 
 将压缩包中的 `PaddleOCROnnx.dll` 及其同目录依赖文件复制到 C# 程序运行目录即可。当前发布包为 Windows x64，因此 C# 项目也应使用 x64 运行。
 
