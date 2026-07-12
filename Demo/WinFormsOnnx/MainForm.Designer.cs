@@ -83,6 +83,11 @@
             groupBoxYoloImage = new GroupBox();
             pictureBoxYolo = new PictureBox();
             textBoxYoloResult = new TextBox();
+            menuStripMain = new MenuStrip();
+            toolStripMenuItemLicense = new ToolStripMenuItem();
+            toolStripMenuItemGetLicenseRequestCode = new ToolStripMenuItem();
+            ToolStripMenuItemApplyGPUTrial = new ToolStripMenuItem();
+            toolStripMenuItemCheckLicense = new ToolStripMenuItem();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDowncpu_mem).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDownThread).BeginInit();
@@ -100,6 +105,7 @@
             ((System.ComponentModel.ISupportInitialize)numericUpDownYoloIou).BeginInit();
             groupBoxYoloImage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxYolo).BeginInit();
+            menuStripMain.SuspendLayout();
             SuspendLayout();
             // 
             // buttonInit
@@ -130,7 +136,7 @@
             textBoxResult.Multiline = true;
             textBoxResult.Name = "textBoxResult";
             textBoxResult.ScrollBars = ScrollBars.Both;
-            textBoxResult.Size = new Size(547, 537);
+            textBoxResult.Size = new Size(547, 482);
             textBoxResult.TabIndex = 2;
             // 
             // buttonGetBase64
@@ -365,7 +371,7 @@
             pictureBoxImg.Dock = DockStyle.Fill;
             pictureBoxImg.Location = new Point(3, 19);
             pictureBoxImg.Name = "pictureBoxImg";
-            pictureBoxImg.Size = new Size(510, 515);
+            pictureBoxImg.Size = new Size(510, 460);
             pictureBoxImg.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxImg.TabIndex = 5;
             pictureBoxImg.TabStop = false;
@@ -376,7 +382,7 @@
             groupBox2.Controls.Add(pictureBoxImg);
             groupBox2.Location = new Point(12, 143);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(516, 537);
+            groupBox2.Size = new Size(516, 482);
             groupBox2.TabIndex = 6;
             groupBox2.TabStop = false;
             groupBox2.Text = "图片";
@@ -386,10 +392,10 @@
             tabControlMain.Controls.Add(tabPageOcr);
             tabControlMain.Controls.Add(tabPageYolo);
             tabControlMain.Dock = DockStyle.Fill;
-            tabControlMain.Location = new Point(0, 0);
+            tabControlMain.Location = new Point(0, 25);
             tabControlMain.Name = "tabControlMain";
             tabControlMain.SelectedIndex = 0;
-            tabControlMain.Size = new Size(1093, 683);
+            tabControlMain.Size = new Size(1093, 658);
             tabControlMain.TabIndex = 7;
             // 
             // tabPageOcr
@@ -400,7 +406,7 @@
             tabPageOcr.Location = new Point(4, 26);
             tabPageOcr.Name = "tabPageOcr";
             tabPageOcr.Padding = new Padding(3);
-            tabPageOcr.Size = new Size(1085, 653);
+            tabPageOcr.Size = new Size(1085, 628);
             tabPageOcr.TabIndex = 0;
             tabPageOcr.Text = "OCR";
             tabPageOcr.UseVisualStyleBackColor = true;
@@ -413,7 +419,7 @@
             tabPageYolo.Location = new Point(4, 26);
             tabPageYolo.Name = "tabPageYolo";
             tabPageYolo.Padding = new Padding(3);
-            tabPageYolo.Size = new Size(1085, 653);
+            tabPageYolo.Size = new Size(1085, 628);
             tabPageYolo.TabIndex = 1;
             tabPageYolo.Text = "YOLO";
             tabPageYolo.UseVisualStyleBackColor = true;
@@ -686,16 +692,54 @@
             textBoxYoloResult.Size = new Size(547, 507);
             textBoxYoloResult.TabIndex = 2;
             // 
+            // menuStripMain
+            // 
+            menuStripMain.Items.AddRange(new ToolStripItem[] { toolStripMenuItemLicense });
+            menuStripMain.Location = new Point(0, 0);
+            menuStripMain.Name = "menuStripMain";
+            menuStripMain.Size = new Size(1093, 25);
+            menuStripMain.TabIndex = 0;
+            menuStripMain.Text = "menuStripMain";
+            // 
+            // toolStripMenuItemLicense
+            // 
+            toolStripMenuItemLicense.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemGetLicenseRequestCode, ToolStripMenuItemApplyGPUTrial, toolStripMenuItemCheckLicense });
+            toolStripMenuItemLicense.Name = "toolStripMenuItemLicense";
+            toolStripMenuItemLicense.Size = new Size(68, 21);
+            toolStripMenuItemLicense.Text = "授权管理";
+            // 
+            // toolStripMenuItemGetLicenseRequestCode
+            // 
+            toolStripMenuItemGetLicenseRequestCode.Name = "toolStripMenuItemGetLicenseRequestCode";
+            toolStripMenuItemGetLicenseRequestCode.Size = new Size(160, 22);
+            toolStripMenuItemGetLicenseRequestCode.Text = "生成授权申请码";
+            toolStripMenuItemGetLicenseRequestCode.Click += ToolStripMenuItemGetLicenseRequestCode_Click;
+            // 
+            // ToolStripMenuItemApplyGPUTrial
+            // 
+            ToolStripMenuItemApplyGPUTrial.Name = "ToolStripMenuItemApplyGPUTrial";
+            ToolStripMenuItemApplyGPUTrial.Size = new Size(160, 22);
+            ToolStripMenuItemApplyGPUTrial.Text = "免费试用GPU";
+            ToolStripMenuItemApplyGPUTrial.Click += ToolStripMenuItemApplyGPUTrial_Click;
+            // 
+            // toolStripMenuItemCheckLicense
+            // 
+            toolStripMenuItemCheckLicense.Name = "toolStripMenuItemCheckLicense";
+            toolStripMenuItemCheckLicense.Size = new Size(160, 22);
+            toolStripMenuItemCheckLicense.Text = "查看GPU授权";
+            toolStripMenuItemCheckLicense.Click += ToolStripMenuItemCheckLicense_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1093, 683);
             Controls.Add(tabControlMain);
+            Controls.Add(menuStripMain);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "CoreOCROnnx识别Demo V4.0.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.git";
+            Text = "CoreOCR识别（后端支持OnnxRuntime、OpenVino、TensorRT）V4.1.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.git";
             Load += MainForm_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
@@ -718,7 +762,10 @@
             ((System.ComponentModel.ISupportInitialize)numericUpDownYoloIou).EndInit();
             groupBoxYoloImage.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBoxYolo).EndInit();
+            menuStripMain.ResumeLayout(false);
+            menuStripMain.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -776,6 +823,11 @@
         private GroupBox groupBoxYoloImage;
         private PictureBox pictureBoxYolo;
         private TextBox textBoxYoloResult;
+        private MenuStrip menuStripMain;
+        private ToolStripMenuItem toolStripMenuItemLicense;
+        private ToolStripMenuItem toolStripMenuItemGetLicenseRequestCode;
+        private ToolStripMenuItem ToolStripMenuItemApplyGPUTrial;
+        private ToolStripMenuItem toolStripMenuItemCheckLicense;
         private Button buttonYoloDetectTensor;
     }
 }

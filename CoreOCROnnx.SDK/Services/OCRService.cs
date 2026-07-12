@@ -99,7 +99,7 @@ namespace CoreOCROnnx.SDK
                 if (!ret)
                 {
                     var error = GetError();
-                    throw new OCRException($"初始化失败: {error}");
+                    throw new OCRException($"{error}");
                 }
 
                 return ret;
@@ -229,7 +229,7 @@ namespace CoreOCROnnx.SDK
                 if (!ret)
                 {
                     var error = GetError();
-                    throw new OCRException($"YOLO初始化失败: {error}");
+                    throw new OCRException($"{error}");
                 }
                 return ret;
             }

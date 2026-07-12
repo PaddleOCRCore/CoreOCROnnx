@@ -25,6 +25,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using WinFormsApp.Services;
@@ -52,6 +53,109 @@ namespace WinFormsApp
             InitializeComponent();
             ocrService = OCREngine.ocrService;
         }
+
+        private void ToolStripMenuItemGetLicenseRequestCode_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                textBoxResult.Clear();
+                string code = ocrService.GetLicenseRequestCode();
+                LogMessage($"{DateTime.Now:HH:mm:ss.fff}:授权申请码");
+                LogMessage(code);
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"{DateTime.Now:HH:mm:ss.fff}:生成授权申请码失败: {ex.Message}");
+                string error = ocrService.GetError();
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    LogMessage($"DLL错误信息: {error}");
+                }
+            }
+        }
+
+        private void ToolStripMenuItemApplyGPUTrial_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                textBoxResult.Clear();
+                string licensePath = OCREngine.ResolveLicensePath();
+                LogMessage($"{DateTime.Now:HH:mm:ss.fff}:尝试激活授权文件: {licensePath}");
+                if (string.IsNullOrWhiteSpace(licensePath) || !File.Exists(licensePath))
+                {
+                    LogMessage($"{DateTime.Now:HH:mm:ss.fff}:未找到默认授权文件，无法免费试用GPU。请将授权文件放到 models/paddleocr.lic");
+                    return;
+                }
+
+                bool activated = ocrService.ActivateLicense(licensePath);
+                LogMessage(activated ? $"{DateTime.Now:HH:mm:ss.fff}:授权文件激活成功" : $"{DateTime.Now:HH:mm:ss.fff}:授权文件激活失败");
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"{DateTime.Now:HH:mm:ss.fff}:免费试用GPU失败: {ex.Message}");
+                string error = ocrService.GetError();
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    LogMessage($"DLL错误信息: {error}");
+                }
+            }
+        }
+
+        private void ToolStripMenuItemCheckLicense_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                textBoxResult.Clear();
+                string licensePath = OCREngine.ResolveLicensePath();
+                bool licenseFileActivated = false;
+                if (!string.IsNullOrWhiteSpace(licensePath) && File.Exists(licensePath))
+                {
+                    licenseFileActivated = ocrService.ActivateLicense(licensePath);
+                }
+
+                LicenseStatus? status = ocrService.GetLicenseStatusInfo();
+                if (status == null)
+                {
+                    string error = ocrService.GetError();
+                    LogMessage($"{DateTime.Now:HH:mm:ss.fff}: 未获取到授权状态。{error}");
+                    return;
+                }
+
+                LogMessage(BuildLicenseStatusText(status, licenseFileActivated));
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"{DateTime.Now:HH:mm:ss.fff}: 查看GPU授权失败: {ex.Message}");
+                string error = ocrService.GetError();
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    LogMessage($"DLL错误信息: {error}");
+                }
+            }
+        }
+
+        private static string BuildLicenseStatusText(LicenseStatus status, bool licenseFileActivated)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine($"{DateTime.Now:HH:mm:ss.fff}: GPU授权状态");
+            builder.AppendLine("===============================================");
+            builder.AppendLine($"授权文件自动激活: {(licenseFileActivated ? "成功" : "未激活或未找到默认授权文件")}");
+            builder.AppendLine($"授权状态: {(status.Activated ? "已授权" : "未授权")}");
+            builder.AppendLine($"产品名称: {(string.IsNullOrWhiteSpace(status.ProductName) ? "-" : status.ProductName)}");
+            builder.AppendLine($"授权编号: {(string.IsNullOrWhiteSpace(status.LicenseId) ? "-" : status.LicenseId)}");
+            builder.AppendLine($"授权版本: {(string.IsNullOrWhiteSpace(status.Version) ? "-" : status.Version)}");
+            builder.AppendLine($"授权状态描述: {(string.IsNullOrWhiteSpace(status.LicenseState) ? "-" : status.LicenseState)}");
+            builder.AppendLine($"GPU权限: {(status.AllowGpu ? "允许" : "不允许")}");
+            builder.AppendLine($"设备绑定: {(status.MachineBound ? "已绑定" : "未绑定")}");
+            builder.AppendLine($"授权机器码: {(string.IsNullOrWhiteSpace(status.MachineCode) ? "-" : status.MachineCode)}");
+            builder.AppendLine($"当前机器码: {(string.IsNullOrWhiteSpace(status.CurrentMachineCode) ? "-" : status.CurrentMachineCode)}");
+            builder.AppendLine($"绑定模式: {(string.IsNullOrWhiteSpace(status.BindMode) ? "-" : status.BindMode)}");
+            builder.AppendLine($"开始时间: {(string.IsNullOrWhiteSpace(status.StartTime) ? "-" : status.StartTime)}");
+            builder.AppendLine($"到期时间: {(string.IsNullOrWhiteSpace(status.ExpireTime) ? "-" : status.ExpireTime)}");
+            builder.AppendLine("===============================================");
+            return builder.ToString();
+        }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             try
@@ -79,47 +183,54 @@ namespace WinFormsApp
             }
         }
 
-        private void buttonInit_Click(object sender, EventArgs e)
+        private async void buttonInit_Click(object sender, EventArgs e)
         {
             try
             {
-                OCREngine.use_gpu = use_gpu;
-                OCREngine.gpu_id = gpu_id;
-                OCREngine.cpu_threads = cpu_threads;
-                switch (model_type)
+                SetOCRBusy(true);
+
+                string initmsg = await Task.Run(() =>
                 {
-                    case 0:
-                        OCREngine.det_infer = "PP-OCRv6_tiny_det.onnx";//OCR V6检测模型
-                        OCREngine.rec_infer = "PP-OCRv6_tiny_rec.onnx";//OCR V6识别模型
-                        OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
-                        OCREngine.keys = "ppocrv6tiny_dict.txt";
-                        break;
-                    case 1:
-                        OCREngine.det_infer = "PP-OCRv6_small_det.onnx";//OCR V6检测模型
-                        OCREngine.rec_infer = "PP-OCRv6_small_rec.onnx";//OCR V6识别模型
-                        OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
-                        OCREngine.keys = "ppocrv6small_dict.txt";
-                        break;
-                    case 2:
-                        OCREngine.det_infer = "ch_PP-OCRv5_mobile_det.onnx";//OCR V5检测模型
-                        OCREngine.rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR V5识别模型
-                        OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
-                        OCREngine.keys = "ppocrv5_dict.txt";
-                        break;
-                    case 3:
-                        OCREngine.det_infer = "ch_PP-OCRv5_det_server.onnx";//OCR V5检测模型
-                        OCREngine.rec_infer = "ch_PP-OCRv5_rec_server.onnx";//OCR V5识别模型
-                        OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
-                        OCREngine.keys = "ppocrv5_dict.txt";
-                        break;
-                    case 4:
-                        OCREngine.det_infer = "ch_PP-OCRv4_det_infer.onnx";//OCR V4检测模型
-                        OCREngine.rec_infer = "ch_PP-OCRv4_rec_infer.onnx";//OCR V4识别模型
-                        OCREngine.cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
-                        OCREngine.keys = "ppocr_keys_v1.txt";
-                        break;
-                }
-                string initmsg = OCREngine.GetOCREngine();
+                    OCREngine.use_gpu = use_gpu;
+                    OCREngine.gpu_id = gpu_id;
+                    OCREngine.cpu_threads = cpu_threads;
+                    switch (model_type)
+                    {
+                        case 0:
+                            OCREngine.det_infer = "PP-OCRv6_tiny_det.onnx";//OCR V6检测模型
+                            OCREngine.rec_infer = "PP-OCRv6_tiny_rec.onnx";//OCR V6识别模型
+                            OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
+                            OCREngine.keys = "ppocrv6tiny_dict.txt";
+                            break;
+                        case 1:
+                            OCREngine.det_infer = "PP-OCRv6_small_det.onnx";//OCR V6检测模型
+                            OCREngine.rec_infer = "PP-OCRv6_small_rec.onnx";//OCR V6识别模型
+                            OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
+                            OCREngine.keys = "ppocrv6small_dict.txt";
+                            break;
+                        case 2:
+                            OCREngine.det_infer = "ch_PP-OCRv5_mobile_det.onnx";//OCR V5检测模型
+                            OCREngine.rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR V5识别模型
+                            OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
+                            OCREngine.keys = "ppocrv5_dict.txt";
+                            break;
+                        case 3:
+                            OCREngine.det_infer = "ch_PP-OCRv5_det_server.onnx";//OCR V5检测模型
+                            OCREngine.rec_infer = "ch_PP-OCRv5_rec_server.onnx";//OCR V5识别模型
+                            OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
+                            OCREngine.keys = "ppocrv5_dict.txt";
+                            break;
+                        case 4:
+                            OCREngine.det_infer = "ch_PP-OCRv4_det_infer.onnx";//OCR V4检测模型
+                            OCREngine.rec_infer = "ch_PP-OCRv4_rec_infer.onnx";//OCR V4识别模型
+                            OCREngine.cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";
+                            OCREngine.keys = "ppocr_keys_v1.txt";
+                            break;
+                    }
+
+                    return OCREngine.GetOCREngine();
+                });
+
                 if (string.IsNullOrEmpty(initmsg))
                 {
                     LogMessage($"{DateTime.Now:HH:mm:ss.fff}:OCR初始化成功");
@@ -128,6 +239,7 @@ namespace WinFormsApp
                 {
                     LogMessage($"{DateTime.Now:HH:mm:ss.fff}:{initmsg}");
                 }
+
                 if (initmsg.IndexOf("初始化成功") >= 0)
                 {
                     LogMessage($"{DateTime.Now:HH:mm:ss.fff}:更换模型请先释放OCR");
@@ -140,6 +252,7 @@ namespace WinFormsApp
             }
             catch (Exception ex)
             {
+                SetOCRBusy(false);
                 LogMessage($"{DateTime.Now:HH:mm:ss.fff}:{ex.Message}");
             }
         }
