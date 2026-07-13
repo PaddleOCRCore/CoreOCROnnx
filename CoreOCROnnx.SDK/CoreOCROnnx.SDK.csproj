@@ -1,9 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+	  <!-- Package Identity -->
 	  <PackageId>CoreOCROnnx.SDK</PackageId>
 	  <Version>4.1.0-beta01</Version>
 	  <Authors>PaddleOCRCore</Authors>
 	  <Company>PaddleOCRCore</Company>
+
+	  <!-- Package Description -->
+	  <Title>CoreOCROnnx SDK for .NET</Title>
+	  <Description>Offline OCR and YOLO SDK for .NET, supporting PaddleOCR text detection, direction classification and text recognition through ONNX Runtime, OpenVINO or TensorRT native runtime packages.</Description>
+	  <PackageTags>OCR;PaddleOCR;ONNX;OpenVINO;TensorRT;YOLO;.NET;文字识别;离线OCR</PackageTags>
+	  <PackageReadmeFile>readme.md</PackageReadmeFile>
+
+	  <!-- License and Copyright -->
+	  <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+	  <Copyright>Copyright (c) PaddleOCRCore</Copyright>
+
+	  <!-- Repository Information -->
+	  <RepositoryType>git</RepositoryType>
+	  <RepositoryUrl>https://github.com/PaddleOCRCore/CoreOCROnnx</RepositoryUrl>
+	  <PackageProjectUrl>https://github.com/PaddleOCRCore/CoreOCROnnx</PackageProjectUrl>
+
+	  <!-- Icon and Release Notes -->
+	  <PackageIcon>icon.png</PackageIcon>
+	  <PackageReleaseNotes>See https://github.com/PaddleOCRCore/CoreOCROnnx/releases for release notes.</PackageReleaseNotes>
+	  <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
 	  <!-- NuGet Health Settings -->
 	  <PublishRepositoryUrl>true</PublishRepositoryUrl>
 	  <Deterministic>true</Deterministic>
@@ -12,6 +34,10 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
+	<ItemGroup>
+	  <None Include="readme.md" Pack="true" PackagePath="\" />
+	  <None Include="icon.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
 	<ItemGroup Condition="Exists('PaddleOCR')">
 		<None Include="PaddleOCR\**\*">
 			<Pack>true</Pack>
