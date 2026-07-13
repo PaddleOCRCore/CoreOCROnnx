@@ -28,11 +28,13 @@
 	  <None Remove="D:\PythonProject\VSProject\PaddleOCROnnxWebApi\CoreOCROnnx.SDK\CoreOCROnnx.SDK.targets" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Remove="D:\Develop\OCRDevSource\PaddleOCROnnx\PaddleOCROnnxWebApi\CoreOCROnnx.SDK\CoreOCROnnx.SDK.targets" />
+	</ItemGroup>
+	<ItemGroup>
 		<None Include="$(SolutionDir)CoreOCROnnx.SDK\CoreOCROnnx.SDK.targets">
 	    <Pack>true</Pack>
 	    <PackageCopyToOutput>true</PackageCopyToOutput>
 	    <PackagePath>build</PackagePath>
 	  </None>
-		<None Include="CoreOCROnnx.SDK.targets" />
 	</ItemGroup>
 </Project>
