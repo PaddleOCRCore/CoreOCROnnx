@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	  <PackageId>CoreOCROnnx.SDK</PackageId>
-	  <Version>4.1.0</Version>
+	  <Version>4.1.0-beta01</Version>
 	  <Authors>PaddleOCRCore</Authors>
 	  <Company>PaddleOCRCore</Company>
 	  <!-- NuGet Health Settings -->
@@ -12,8 +12,8 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
-	<ItemGroup>
-		<None Include="$(SolutionDir)CoreOCROnnx.SDK\PaddleOCR\**">
+	<ItemGroup Condition="Exists('PaddleOCR')">
+		<None Include="PaddleOCR\**\*">
 			<Pack>true</Pack>
 			<PackageCopyToOutput>true</PackageCopyToOutput>
 			<PackagePath>build\PaddleOCR</PackagePath>
@@ -23,18 +23,5 @@
 	  <Compile Remove="OCRModels\**" />
 	  <EmbeddedResource Remove="OCRModels\**" />
 	  <None Remove="OCRModels\**" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Remove="D:\PythonProject\VSProject\PaddleOCROnnxWebApi\CoreOCROnnx.SDK\CoreOCROnnx.SDK.targets" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Remove="D:\Develop\OCRDevSource\PaddleOCROnnx\PaddleOCROnnxWebApi\CoreOCROnnx.SDK\CoreOCROnnx.SDK.targets" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="$(SolutionDir)CoreOCROnnx.SDK\CoreOCROnnx.SDK.targets">
-	    <Pack>true</Pack>
-	    <PackageCopyToOutput>true</PackageCopyToOutput>
-	    <PackagePath>build</PackagePath>
-	  </None>
 	</ItemGroup>
 </Project>

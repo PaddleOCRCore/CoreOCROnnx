@@ -84,6 +84,7 @@ namespace WinFormsApp
                 if (string.IsNullOrWhiteSpace(licensePath) || !File.Exists(licensePath))
                 {
                     LogMessage($"{DateTime.Now:HH:mm:ss.fff}:未找到默认授权文件，无法免费试用GPU。请将授权文件放到 models/paddleocr.lic");
+                    OpenUrl("http://ocr.axinw.com");
                     return;
                 }
 
@@ -131,6 +132,21 @@ namespace WinFormsApp
                 {
                     LogMessage($"DLL错误信息: {error}");
                 }
+            }
+        }
+        private void OpenUrl(string url)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"无法打开链接：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

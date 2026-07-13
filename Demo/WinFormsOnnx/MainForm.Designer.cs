@@ -705,27 +705,27 @@
             // 
             toolStripMenuItemLicense.DropDownItems.AddRange(new ToolStripItem[] { toolStripMenuItemGetLicenseRequestCode, ToolStripMenuItemApplyGPUTrial, toolStripMenuItemCheckLicense });
             toolStripMenuItemLicense.Name = "toolStripMenuItemLicense";
-            toolStripMenuItemLicense.Size = new Size(68, 21);
-            toolStripMenuItemLicense.Text = "授权管理";
+            toolStripMenuItemLicense.Size = new Size(69, 21);
+            toolStripMenuItemLicense.Text = "GPU授权";
             // 
             // toolStripMenuItemGetLicenseRequestCode
             // 
             toolStripMenuItemGetLicenseRequestCode.Name = "toolStripMenuItemGetLicenseRequestCode";
-            toolStripMenuItemGetLicenseRequestCode.Size = new Size(160, 22);
+            toolStripMenuItemGetLicenseRequestCode.Size = new Size(180, 22);
             toolStripMenuItemGetLicenseRequestCode.Text = "生成授权申请码";
             toolStripMenuItemGetLicenseRequestCode.Click += ToolStripMenuItemGetLicenseRequestCode_Click;
             // 
             // ToolStripMenuItemApplyGPUTrial
             // 
             ToolStripMenuItemApplyGPUTrial.Name = "ToolStripMenuItemApplyGPUTrial";
-            ToolStripMenuItemApplyGPUTrial.Size = new Size(160, 22);
+            ToolStripMenuItemApplyGPUTrial.Size = new Size(180, 22);
             ToolStripMenuItemApplyGPUTrial.Text = "免费试用GPU";
             ToolStripMenuItemApplyGPUTrial.Click += ToolStripMenuItemApplyGPUTrial_Click;
             // 
             // toolStripMenuItemCheckLicense
             // 
             toolStripMenuItemCheckLicense.Name = "toolStripMenuItemCheckLicense";
-            toolStripMenuItemCheckLicense.Size = new Size(160, 22);
+            toolStripMenuItemCheckLicense.Size = new Size(180, 22);
             toolStripMenuItemCheckLicense.Text = "查看GPU授权";
             toolStripMenuItemCheckLicense.Click += ToolStripMenuItemCheckLicense_Click;
             // 
