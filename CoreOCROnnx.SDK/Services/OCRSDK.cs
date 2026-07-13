@@ -37,8 +37,13 @@ namespace CoreOCROnnx.SDK
 
         private static void ConfigureNativeDllLoading()
         {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            TryLoadLocalDll(baseDirectory, "onnxruntime");
+            string nativeDirectory = NativeRuntimeLoader.EnsureLoaded();
+            if (string.IsNullOrWhiteSpace(nativeDirectory))
+            {
+                nativeDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            }
+
+            TryLoadLocalDll(nativeDirectory, "onnxruntime");
 
 #if NETCOREAPP3_0_OR_GREATER
             try
@@ -50,7 +55,7 @@ namespace CoreOCROnnx.SDK
                 // A resolver can only be registered once per assembly.
             }
 #else
-            TryLoadLocalDll(baseDirectory, dllFileName);
+        TryLoadLocalDll(nativeDirectory, dllFileName);
 #endif
         }
 
@@ -62,7 +67,13 @@ namespace CoreOCROnnx.SDK
                 return IntPtr.Zero;
             }
 
-            string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dllFileName);
+            string nativeDirectory = NativeRuntimeLoader.EnsureLoaded();
+            if (string.IsNullOrWhiteSpace(nativeDirectory))
+            {
+                nativeDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            }
+
+            string dllPath = Path.Combine(nativeDirectory, dllFileName + ".dll");
             if (!File.Exists(dllPath))
             {
                 return IntPtr.Zero;
@@ -76,7 +87,7 @@ namespace CoreOCROnnx.SDK
 
         private static void TryLoadLocalDll(string baseDirectory, string dllName)
         {
-            string dllPath = Path.Combine(baseDirectory, dllName);
+            string dllPath = Path.Combine(baseDirectory, dllName + ".dll");
             if (!File.Exists(dllPath))
             {
                 return;
