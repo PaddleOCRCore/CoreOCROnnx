@@ -59,6 +59,8 @@ pause
 | -- | --- |-------- | ------- |---------| ------------|-----|
 |1| OCR| /OCRService/GetOCRText| 图片OCR识别| 2025/03/28| 2025/03/28| 上传Base64|
 |2| OCR| /OCRService/GetOCRFile| 图片OCR识别| 2025/04/27| 2025/04/27| 上传图片|
+|3| YOLO| /YOLOService/GetYOLOFileTensor| YOLO Tensor识别| 2026/07/14| 2026/07/14| 上传图片|
+|4| YOLO| /YOLOService/GetYOLOBase64Tensor| YOLO Tensor识别| 2026/07/14| 2026/07/14| 上传Base64|
 
 图片OCR识别：/OCRService/GetOCRText 
 
@@ -91,3 +93,55 @@ pause
  "errorMessage": ""
 }
 `
+
+## YOLO Tensor识别接口
+
+YOLO模型参数在appsettings.json的YOLOConfig节点配置。默认模型文件名为yolov8s.onnx，服务运行时会从程序目录下的models文件夹加载，例如：
+
+`
+CoreOCROnnx.WebApi.dll
+models/yolov8s.onnx
+`
+
+### 上传图片返回Tensor
+
+接口地址：/YOLOService/GetYOLOFileTensor
+
+提交方式：POST
+
+Content-Type：multipart/form-data
+
+表单字段名：request
+
+返回数据为完整YoloTensorResult：
+
+`
+{
+ "status": 200,
+ "data": {
+  "data": [0.1, 0.2],
+  "shape": [1, 8400, 84],
+  "shapeLen": 3,
+  "elementCount": 705600
+ },
+ "errorMessage": ""
+}
+`
+
+### 上传Base64返回Tensor
+
+接口地址：/YOLOService/GetYOLOBase64Tensor
+
+提交方式：POST
+
+Content-Type：application/json
+
+传入参数：
+
+`
+{
+ "Base64String": ""
+}
+`
+
+返回数据同/GetYOLOFileTensor，data为原始Tensor展开数据，shape通常为[batch, boxes, channels]。

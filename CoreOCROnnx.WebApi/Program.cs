@@ -34,9 +34,12 @@ try
     builder.Services.AddEndpointsApiExplorer();
     var ocrConfig = builder.Configuration.GetSection("OCRConfig").Get<OCRConfig>();
     if (ocrConfig != null) builder.Services.AddSingleton(ocrConfig);
+    var yoloConfig = builder.Configuration.GetSection("YOLOConfig").Get<YOLOConfig>();
+    if (yoloConfig != null) builder.Services.AddSingleton(yoloConfig);
     //检测模型依赖注入
     builder.Services.AddSingleton<IOCRService, OCRService>();
     builder.Services.AddSingleton<OCREngine>();
+    builder.Services.AddSingleton<YOLOEngine>();
 
     // 网页显示中文
     builder.Services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));

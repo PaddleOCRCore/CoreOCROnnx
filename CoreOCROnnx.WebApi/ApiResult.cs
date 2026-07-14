@@ -111,10 +111,72 @@ namespace CoreOCROnnx.WebApi
     }
 
     /// <summary>
+    /// YOLO Base64图片请求
+    /// </summary>
+    public class RequestYoloBase64
+    {
+        /// <summary>
+        /// 图片Base64字符串
+        /// </summary>
+        public string Base64String { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// YOLO配置
+    /// </summary>
+    public class YOLOConfig
+    {
+        /// <summary>
+        /// 模型根目录，支持绝对路径或相对程序目录路径
+        /// </summary>
+        public string models_root { get; set; } = "models";
+        /// <summary>
+        /// YOLO ONNX模型文件名，默认相对程序models目录
+        /// </summary>
+        public string model_path { get; set; } = "yolov8s.onnx";
+        /// <summary>
+        /// 模型类型：Detect=1，Pose=2，Cls=3，Seg=7，OBB=8
+        /// </summary>
+        public int model_type { get; set; } = 1;
+        /// <summary>
+        /// 是否使用GPU
+        /// </summary>
+        public bool use_gpu { get; set; } = false;
+        /// <summary>
+        /// GPU id，使用GPU时有效
+        /// </summary>
+        public int gpu_id { get; set; } = 0;
+        /// <summary>
+        /// CPU预测时的线程数
+        /// </summary>
+        public int num_threads { get; set; } = 30;
+        /// <summary>
+        /// 置信度阈值
+        /// </summary>
+        public float confidence_threshold { get; set; } = 0.25f;
+        /// <summary>
+        /// NMS IoU阈值
+        /// </summary>
+        public float iou_threshold { get; set; } = 0.45f;
+        /// <summary>
+        /// 是否对结果进行可视化
+        /// </summary>
+        public bool visualize { get; set; } = true;
+        /// <summary>
+        /// 是否输出到文件日志
+        /// </summary>
+        public bool enable_log { get; set; } = false;
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     public class OCRConfig
     {
+        /// <summary>
+        /// 模型根目录，支持绝对路径或相对程序目录路径
+        /// </summary>
+        public string models_root { get; set; } = "models";
         /// <summary>
         /// det_infer模型路径
         /// </summary>

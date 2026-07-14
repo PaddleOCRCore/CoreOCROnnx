@@ -82,6 +82,30 @@ namespace CoreOCROnnx.WebApi.Services
                 : Path.Combine(AppContext.BaseDirectory, path);
         }
 
+        private static string ResolveModelRoot(string modelsRoot)
+        {
+            if (string.IsNullOrWhiteSpace(modelsRoot))
+            {
+                return AppContext.BaseDirectory;
+            }
+
+            return Path.IsPathRooted(modelsRoot)
+                ? modelsRoot
+                : Path.Combine(AppContext.BaseDirectory, modelsRoot);
+        }
+
+        private static string ResolveModelPath(string modelRoot, string modelPath)
+        {
+            if (string.IsNullOrWhiteSpace(modelPath))
+            {
+                return string.Empty;
+            }
+
+            return Path.IsPathRooted(modelPath)
+                ? modelPath
+                : Path.Combine(modelRoot, modelPath);
+        }
+
         /// <summary>
         /// 初始化OCR引擎
         /// </summary>
@@ -91,12 +115,11 @@ namespace CoreOCROnnx.WebApi.Services
             //自带轻量版中英文模型V4模型
             InitParamater para=new InitParamater();
             //string root = AppDomain.CurrentDomain.BaseDirectory;
-            string root = AppContext.BaseDirectory;
-            string modelPathroot = Path.Combine(root, "models");
-            para.det_infer = Path.Combine(modelPathroot, _ocrConfig.det_infer);
-            para.cls_infer = Path.Combine(modelPathroot, _ocrConfig.cls_infer);
-            para.rec_infer = Path.Combine(modelPathroot, _ocrConfig.rec_infer);
-            para.keyFile = Path.Combine(modelPathroot, _ocrConfig.keyFile);
+            string modelPathroot = ResolveModelRoot(_ocrConfig.models_root);
+            para.det_infer = ResolveModelPath(modelPathroot, _ocrConfig.det_infer);
+            para.cls_infer = ResolveModelPath(modelPathroot, _ocrConfig.cls_infer);
+            para.rec_infer = ResolveModelPath(modelPathroot, _ocrConfig.rec_infer);
+            para.keyFile = ResolveModelPath(modelPathroot, _ocrConfig.keyFile);
             OCRParameter oCRParameter = OCRParameter.CreateDefault();
             oCRParameter.use_gpu = _ocrConfig.use_gpu;
             oCRParameter.gpu_id = _ocrConfig.gpu_id;
