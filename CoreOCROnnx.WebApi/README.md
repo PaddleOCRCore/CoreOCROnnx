@@ -6,18 +6,14 @@
 项目运行环境为.net10.0：
 
 1、使用IIS：服务器环境推荐，建议操作系统Windows Server2016 Data Center，
-安装IIS，及.net8 环境，下载地址：
-https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0，找到ASP.NET Core
-运行时 8.0.14，点击Windows 平台Hosting Bundle 下载：
-https://dotnet.microsoft.com/zh-cn/download/dotnet/thank-you/runtime-aspnetcore-8.0.14-win
-dows-hosting-bundle-installer
+安装IIS，及.net10 环境，下载地址：
+https://dotnet.microsoft.com/zh-cn/download/dotnet/10.0，找到ASP.NET Core
+运行时 10.0，点击Windows 平台Hosting Bundle 下载并安装。
 2、独立运行服务：建议操作系统Win10 以上64 位，
-安装ASP.NET Core 运行时 8.0.14：
-https://dotnet.microsoft.com/zh-cn/download/dotnet/thank-you/runtime-as
-pnetcore-8.0.14-windows-x64-installer
-安装.NET 桌面运行时 8.0.14：
-https://dotnet.microsoft.com/zh-cn/download/dotnet/thank-you/runtime-d
-esktop-8.0.14-windows-x64-installer
+安装ASP.NET Core 运行时 10.0：
+https://dotnet.microsoft.com/zh-cn/download/dotnet/10.0
+安装.NET 桌面运行时 10.0：
+https://dotnet.microsoft.com/zh-cn/download/dotnet/10.0
 创建一个批处理文件：StartOCRApi.bat，输入以下内容：
 @echo off
 set CURRENT_DIR=%~dp0
@@ -29,6 +25,12 @@ pause
 双击批处理文件StartOCRApi.bat，启动服务，默认端口5000(批处理中可修改)，浏览器打开http://localhost:5000 提示服务正在运行即正常。
 
 打开http://localhost:5000 可使用在线Demo，打开http://localhost:5000/scalar 可查看接口及在线调试。
+
+开发调试可在项目根目录执行：
+`
+dotnet run --project CoreOCROnnx.WebApi/CoreOCROnnx.WebApi.csproj --no-launch-profile --urls http://localhost:5050
+`
+然后打开http://localhost:5050 使用在线Demo。
 
 ### 修改Web.Config 配置文件，将hostingModel="inprocess"改为hostingModel=" OutOfProcess "
 
