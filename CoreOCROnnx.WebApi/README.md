@@ -3,7 +3,7 @@
 实现在线调用OCR识别的WebAPI服务
 
 ## 运行环境
-项目运行环境为.net8.0：
+项目运行环境为.net10.0：
 
 1、使用IIS：服务器环境推荐，建议操作系统Windows Server2016 Data Center，
 安装IIS，及.net8 环境，下载地址：
@@ -28,7 +28,7 @@ pause
 并将批处理发送至桌面快捷方式
 双击批处理文件StartOCRApi.bat，启动服务，默认端口5000(批处理中可修改)，浏览器打开http://localhost:5000 提示服务正在运行即正常。
 
-打开http://localhost:5000/swagger/index.html可查看接口及在线调试
+打开http://localhost:5000 可使用在线Demo，打开http://localhost:5000/scalar 可查看接口及在线调试。
 
 ### 修改Web.Config 配置文件，将hostingModel="inprocess"改为hostingModel=" OutOfProcess "
 
@@ -61,6 +61,73 @@ pause
 |2| OCR| /OCRService/GetOCRFile| 图片OCR识别| 2025/04/27| 2025/04/27| 上传图片|
 |3| YOLO| /YOLOService/GetYOLOFileTensor| YOLO Tensor识别| 2026/07/14| 2026/07/14| 上传图片|
 |4| YOLO| /YOLOService/GetYOLOBase64Tensor| YOLO Tensor识别| 2026/07/14| 2026/07/14| 上传Base64|
+|5| Demo| /OCRDemo/Analyze| 在线Demo图片解析| 2026/07/14| 2026/07/14| 上传图片，支持PP-OCRv6/YOLO|
+|6| License| /Home/GetLicenseRequestCode| 获取授权请求码| 2026/07/14| 2026/07/14| 在线Demo授权功能|
+|7| License| /Home/GetLicenseStatus| 获取授权状态| 2026/07/14| 2026/07/14| 在线Demo授权功能|
+|8| License| /Home/UploadLicense| 上传授权文件| 2026/07/14| 2026/07/14| 上传.lic文件|
+
+## 在线Demo
+
+浏览器访问：http://localhost:5000
+
+在线Demo支持上传图片并选择解析模型：
+
+| 模型 | 说明 |
+| ---- | ---- |
+| PP-OCRv6 | 调用OCR识别并返回文字、Json和文本框坐标 |
+| YOLO | 调用YOLO Tensor识别，服务端按640x640输入尺寸做后处理并返回检测框 |
+
+图片限制：仅支持PNG/JPG/JPEG/BMP/TIF/TIFF，单文件大小不超过10MB。
+
+### 在线Demo解析接口
+
+接口地址：/OCRDemo/Analyze
+
+提交方式：POST
+
+Content-Type：multipart/form-data
+
+表单字段：
+
+| 参数名称 | 描述 | 类型 | 是否必填 | 备注 |
+| -------- | ---- | ---- | -------- | ---- |
+| file | 图片文件 | file | 必填 | PNG/JPG/JPEG/BMP/TIF/TIFF |
+| model | 解析模型 | string | 必填 | pp-ocrv6 或 yolo |
+
+返回数据示例：
+
+`
+{
+ "status": 200,
+ "data": {
+  "model": "pp-ocrv6",
+  "modelName": "PP-OCRv6",
+  "fileName": "demo.jpg",
+  "content": "识别文本",
+  "markdown": "识别文本",
+  "jsonText": "{}",
+  "imageWidth": 1024,
+  "imageHeight": 768,
+  "raw": {},
+  "boxes": []
+ },
+ "errorMessage": ""
+}
+`
+
+YOLO模式下raw返回裁剪后的Tensor摘要和后处理检测结果，不返回完整Tensor data数组；如需完整Tensor，请使用/YOLOService/GetYOLOFileTensor或/YOLOService/GetYOLOBase64Tensor。
+
+### 在线Demo授权接口
+
+在线Demo保留license-actions授权相关功能，接口如下：
+
+| 接口地址 | 提交方式 | 说明 |
+| -------- | -------- | ---- |
+| /Home/GetLicenseRequestCode | GET | 获取当前机器授权请求码 |
+| /Home/GetLicenseStatus | GET | 获取授权状态 |
+| /Home/UploadLicense | POST multipart/form-data | 上传.lic授权文件 |
+
+/Home/UploadLicense表单字段名为file，文件大小不超过1MB。授权验证成功后会保存到OCRConfig.OCRLicense配置的位置。
 
 图片OCR识别：/OCRService/GetOCRText 
 
@@ -145,3 +212,24 @@ Content-Type：application/json
 `
 
 返回数据同/GetYOLOFileTensor，data为原始Tensor展开数据，shape通常为[batch, boxes, channels]。
+
+## 模型路径配置
+
+OCRConfig和YOLOConfig都支持models_root配置，表示模型根目录，支持绝对路径或相对程序目录路径。
+
+示例：
+
+`
+"OCRConfig": {
+    "models_root": "models",
+    "det_infer": "PP-OCRv6_tiny_det.onnx",
+    "rec_infer": "PP-OCRv6_tiny_rec.onnx",
+    "cls_infer": "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx",
+    "keyFile": "ppocrv6tiny_dict.txt",
+    "OCRLicense": "models/paddleocr.lic"
+},
+"YOLOConfig": {
+    "models_root": "models",
+    "model_path": "yolov8s.onnx"
+}
+`

@@ -1,8 +1,126 @@
 ﻿@{
-    ViewData["Title"] = "WebAPI接口";
+    ViewData["Title"] = "PaddleOCROnnx Demo";
 }
-<body style="margin:0;">
-    <div class="port">
-        <img src="~/Images/port.png" style="position: absolute;display: block;top: 50%;left:50%;margin-left:-375px;margin-top:-200px;">
-    </div>
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="@Url.Content("~/css/home-index.css")">
+</head>
+<body>
+    <main class="app" id="app">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark">P</div>
+                <strong>飞桨</strong>
+                <span>PaddleOCROnnx</span>
+            </div>
+            <div class="license-actions">
+                <button class="topbar-button" id="licenseCodeButton" type="button" data-tone="code" data-icon="码" title="获取授权申请码">获取授权申请码</button>
+                <button class="topbar-button" id="licenseStatusButton" type="button" data-tone="status" data-icon="态" title="查看授权状态">查看授权状态</button>
+                <button class="topbar-button" id="uploadLicenseButton" type="button" data-tone="upload" data-icon="传" title="上传授权文件">上传授权文件</button>
+                <input id="licenseInput" type="file" accept=".lic" hidden>
+            </div>
+            <div class="status-pill" id="statusPill">加群：475159576</div>
+        </header>
+
+        <section class="workspace">
+            <aside class="sidebar">
+                <div class="side-actions">
+                    <button class="new-button" id="newButton" type="button">＋ 新解析</button>
+                    <a class="api-button" href="/scalar">API接口</a>
+                </div>
+                <div class="side-section">
+                    <div class="side-tabs" aria-label="文件列表视图">
+                        <span class="side-tab active">最近上传</span>
+                    </div>
+                    <div class="file-list" id="fileList">
+                        <div class="empty-list">没有更多啦</div>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="preview-pane">
+                <div class="upload-strip">
+                    <label class="dropzone" id="dropzone">
+                        <input id="fileInput" type="file" accept=".png,.jpg,.jpeg,.bmp,.tif,.tiff,image/png,image/jpeg,image/bmp,image/tiff">
+                        <span class="drop-content">
+                            <span class="upload-icon">↑</span>
+                            <span class="drop-title">点击上传或拖入图片开始解析</span>
+                            <span class="drop-note">支持 PNG/JPG/BMP/TIF 等图片格式，单图片不超过 10MB</span>
+                        </span>
+                    </label>
+
+                    <div class="source-bar">
+                        <div class="source-tab">源文件</div>
+                        <div class="source-meta">
+                            <span class="source-file-icon" aria-hidden="true"></span>
+                            <div class="source-file" id="sourceName">未选择文件</div>
+                            <div class="source-size" id="sourceSize"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-stage">
+                    <div class="image-shell">
+                        <div class="placeholder" id="placeholder">
+                            <div class="placeholder-mark">IMG</div>
+                            <div>上传图片后在此预览解析区域</div>
+                        </div>
+                        <div class="image-wrap" id="imageWrap" hidden>
+                            <img id="previewImage" alt="源文件预览">
+                            <div class="overlay" id="overlay"></div>
+                        </div>
+                    </div>
+                    <div class="pager" id="pager">
+                        <button type="button" class="preview-tool" id="zoomOutButton" title="缩小">⌖</button>
+                        <button type="button" class="preview-tool" id="zoomInButton" title="放大">⌕</button>
+                        <span class="pager-divider" aria-hidden="true"></span>
+                        <button type="button" class="preview-tool" id="zoomResetButton" title="重置预览">↻</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="result-pane">
+                <div class="model-row">
+                    <label class="model-label" for="modelSelect">解析模型</label>
+                    <div class="model-field">
+                        <select class="model-select" id="modelSelect">
+                            <option value="pp-ocrv6">PP-OCRv6</option>
+                            <option value="yolo">YOLO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="tabbar">
+                    <button class="tab active" id="docTab" type="button">▤ 解析结果</button>
+                    <button class="tab" id="jsonTab" type="button">{ } JSON</button>
+                    <div class="toolbar">
+                        <button class="icon-button origin-toggle" id="originToggleButton" type="button" title="隐藏底图" aria-label="隐藏底图" hidden>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" fill="none" class="hide-image close" aria-hidden="true" focusable="false">
+                                <path d="M8 2v12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                                <rect x="10.5" y="3" width="3" height="10" rx="1" stroke="currentColor" stroke-linejoin="round"></rect>
+                                <rect x="2.5" y="3" width="3" height="10" rx="1" fill="currentColor" stroke="currentColor" stroke-linejoin="round"></rect>
+                            </svg>
+                        </button>
+                        <button class="icon-button" id="copyButton" type="button" title="复制">⧉</button>
+                        <button class="icon-button" id="refreshButton" type="button" title="重新解析">↻</button>
+                    </div>
+                </div>
+
+                <div class="result-body">
+                    <div class="result-content plain-text" id="docView" role="region" aria-live="polite">等待上传图片</div>
+                    <pre class="json-view" id="jsonView">{}</pre>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="@Url.Content("~/js/home-index.js")"></script>
 </body>
+</html>
