@@ -9,7 +9,7 @@
 
 ## 1. Introduction
 
-CoreOCR is a free, fast, offline OCR component. Choose one of three runtime backends: ONNX Runtime, OpenVINO, or TensorRT. Device support varies by backend: ONNX Runtime and OpenVINO packages can use the CPU or supported GPUs as described in their release notes, while the TensorRT package supports NVIDIA GPUs only. The component supports multithreaded concurrent development in C#, C++, Java, Python, and Go.
+CoreOCR is a free, fast, offline OCR component supporting ONNX Runtime, DirectML, OpenVINO, and TensorRT backends. Platform, device, and licensing requirements vary by backend; an application only needs one runtime package matching its target environment. The component supports multithreaded concurrent development in C#, C++, Java, Python, and Go.
 
 If you find this project useful, please give it a free Star.
 
@@ -23,17 +23,59 @@ YOLO models are also supported.
 
 The project requires Visual Studio 2022 or later and .NET 10.0.
 
-1. The core file, `PaddleOCROnnx.dll`, is a C++ dynamic-link library. Its CPU/GPU capabilities depend on the selected backend runtime package. The TensorRT package supports NVIDIA GPUs on Windows/Linux x64 only.
+1. The core file, `PaddleOCROnnx.dll` (`PaddleOCROnnx.so` on Linux), is a C++ dynamic library. Its CPU/GPU capabilities depend on the selected backend runtime package. The application platform and process architecture must match the runtime package.
 
 ### Runtime Package Downloads
 
-Download one of the following backend runtime packages from GitHub Releases:
+Installing through [NuGet](https://www.nuget.org/packages?q=CoreOCRRuntime) is recommended. A C# application normally needs:
 
-- ONNX Runtime backend: [OCRRuntimeOnnx_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOnnx_v4.0.0.zip)
-- OpenVINO backend: [OCRRuntimeOpenVino_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOpenVino_v4.0.0.zip)
-- TensorRT backend: due to its size, download it from Baidu Netdisk: [CoreOCROnnxApi4.1-TensorRT.zip](https://pan.baidu.com/s/1h8tyeGzG0dukzMVDUwPqWQ?pwd=bejk)
+1. `CoreOCROnnx.SDK` for the C# interfaces, data models, and service implementations.
+2. One `CoreOCRRuntime.*` native runtime package matching the target operating system, process architecture, and inference device.
 
-Copy `PaddleOCROnnx.dll` and all dependencies from the same directory in the archive to the C# application output directory. The current release packages target Windows x64, so the C# project must also run as x64.
+> Install only one runtime package per application. These packages contain the same `PaddleOCROnnx.dll` or `PaddleOCROnnx.so` filename, so installing multiple runtimes causes files to overwrite one another. Use separate project configurations or publish directories when distributing multiple backends.
+
+For example, a Windows x64 CPU project can use:
+
+```bash
+dotnet add package CoreOCROnnx.SDK
+dotnet add package CoreOCRRuntime.Onnx.CPU.win-x64
+```
+
+This repository already references `CoreOCROnnx.SDK` as a source project. The Web API project therefore only needs one desired `CoreOCRRuntime.*` package reference.
+
+#### Runtime Packages
+
+| NuGet package | Platform/architecture | Inference device | Main model formats | License requirement |
+| --- | --- | --- | --- | --- |
+| `CoreOCRRuntime.Onnx.CPU.win-x86` | Windows x86 | CPU | `.onnx` | Not required |
+| `CoreOCRRuntime.Onnx.CPU.win-x64` | Windows x64 | CPU | `.onnx` | Not required |
+| `CoreOCRRuntime.Onnx.CPU.linux-x64` | Linux x64 | CPU | `.onnx` | Required |
+| `CoreOCRRuntime.DirectML.win-x86` | Windows x86 | DirectML GPU; CPU is also available | `.onnx` | Not required for CPU; required for GPU |
+| `CoreOCRRuntime.DirectML.win-x64` | Windows x64 | DirectML GPU; CPU is also available | `.onnx` | Not required for CPU; required for GPU |
+| `CoreOCRRuntime.OpenVino.CPU.win-x64` | Windows x64 | CPU | `.onnx`, `.xml` + `.bin` | Not required |
+| `CoreOCRRuntime.OpenVino.GPU.win-x64` | Windows x64 | Intel GPU; also includes the CPU plugin | `.onnx`, `.xml` + `.bin` | Not required for CPU; required for GPU |
+| `CoreOCRRuntime.TensorRT.GPU.win-x64` | Windows x64 | NVIDIA GPU | `.onnx`, `.engine`, `.plan` | GPU license required |
+| `CoreOCRRuntime.TensorRT.GPU.linux-x64` | Linux x64 | NVIDIA GPU | `.onnx`, `.engine`, `.plan` | GPU license required |
+
+Selection guide:
+
+- For general CPU deployments or minimal external dependencies, choose the ONNX Runtime CPU package for the target platform.
+- For AMD, Intel, or NVIDIA GPUs on Windows, choose DirectML.
+- For Intel CPUs or Intel GPUs on Windows, choose the corresponding OpenVINO package.
+- For maximum performance on NVIDIA GPUs on Windows or Linux, choose TensorRT.
+
+Runtime packages include PP-OCRv6 ONNX sample models, recognition dictionaries, and related resources. These files are placed in the application output after installation or publishing. Windows packages also provide a license request-code utility; on Linux, obtain the request code through the SDK's `GetLicenseRequestCode()` method. You may replace the sample models with your own compatible models; keep every model and dictionary used by the deployed application.
+
+#### Licensing and Native Dependencies
+
+- Windows CPU mode is free and does not require license activation.
+- Windows GPU modes (DirectML, OpenVINO GPU, and TensorRT) require a license that permits GPU use.
+- Linux requires license activation for both CPU and GPU use. NuGet packages do not include an activated commercial license.
+- When a license is required, generate the request code on the final deployment machine and apply for a license matching that machine, platform, and product version at [CoreOCR Online Licensing](http://ocr.axinw.com).
+- DirectML and OpenVINO dependencies are copied by their runtime packages. Do not deploy only `PaddleOCROnnx.dll`.
+- TensorRT runtime packages do not include NVIDIA TensorRT, CUDA, or a graphics driver. Install TensorRT 11.1, CUDA 12.9 Runtime, and a compatible NVIDIA driver on the target machine.
+
+For manual native-library deployment, download the matching version from [GitHub Releases](https://github.com/PaddleOCRCore/CoreOCROnnx/releases). Copy the complete dependency set from the archive, and never mix files from different backends or architectures.
 
 ### [Web API Documentation](./CoreOCROnnx.WebApi/README.md)
 
@@ -67,6 +109,61 @@ After deployment, the Web API can be called by frontend applications.
 | visualize | false | Visualize results. When `true`, annotated images are saved under the `output` directory using the input image names. |
 | enable_log | false | Write logs to files under the `log` directory. |
 | isOutputConsole | true | Write logs to the console. |
+
+### YoloInitJson Parameters
+
+`YoloInitJson` initializes a YOLO model from a JSON parameter string. Complete `parameterjson` example:
+
+```json
+{
+    "model_type": 1,
+    "input_width": 640,
+    "input_height": 640,
+    "confidence_threshold": 0.25,
+    "point_score_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "enable_nms": false,
+    "key_points_num": 17,
+    "num_threads": 4,
+    "use_gpu": false,
+    "gpu_id": 0,
+    "warmup": true,
+    "visualize": false,
+    "enable_log": false,
+    "class_names_preset": "auto",
+    "class_names": ["person", "car"],
+    "class_names_file": "coco.names"
+}
+```
+
+| Parameter | Example | Description |
+| --- | --- | --- |
+| `model_type` | `1` | Model type: `1`=detect, `2`=pose, `3`=classification, `4`=detect FP16, `5`=pose FP16, `6`=classification FP16, `7`=seg, `8`=obb, `9`=seg FP16, and `10`=obb FP16. |
+| `input_width` / `input_height` | `640` | Model input dimensions. Fixed dimensions can be read automatically from an ONNX model; dynamic dimensions default to 640 when omitted. |
+| `confidence_threshold` | `0.25` | Object or class confidence threshold. Candidates below this value are filtered out. |
+| `point_score_threshold` | `0.25` | Pose keypoint drawing threshold. Keypoints and skeleton lines below this value are not drawn. |
+| `iou_threshold` | `0.45` | Overlapping-box threshold for NMS. It applies only when `enable_nms=true`. |
+| `enable_nms` | `false` | Enable NMS. The default is `false`. When disabled, detection results are not filtered by overlap; raw Tensor API output is unaffected. |
+| `key_points_num` | `17` | Number of keypoints in a pose model. COCO human-pose models normally use 17. |
+| `num_threads` | `4` | Number of CPU inference threads. The default is 1. |
+| `use_gpu` | `false` | Use a GPU or accelerated backend. The license must permit it, and the corresponding backend build is required. TensorRT always uses a GPU. |
+| `gpu_id` | `0` | GPU device ID. The default is 0. |
+| `warmup` | `true` | Run one warm-up inference after initialization. The default is `true`. |
+| `visualize` | `false` | Save visualized images under `output`. JSON APIs return `vis_path`; Tensor APIs perform visualization only as a side effect. |
+| `enable_log` | `false` | Write YOLO runtime logs to the console. |
+| `class_names_preset` | `"auto"` | Class-name preset: `auto` selects names based on the model task, while `none` disables preset class names. |
+| `class_names` | `["person", "car"]` | Class names supplied as a JSON array or a comma/newline-delimited string. This takes precedence over `class_names_preset`. |
+| `class_names_file` | `"coco.names"` | Path to a class-name file containing one name per line. When set, it overrides `class_names`. |
+
+API declaration:
+
+```cpp
+Paddle_API bool CALL_CONV YoloInitJson(const char* modelPath, const char* parameterjson);
+```
+
+- `modelPath`: path to a YOLO ONNX model. Formats supported by the selected OpenVINO or TensorRT backend may also be used.
+- `parameterjson`: YOLO initialization parameters as a JSON string.
+- Return value: `true` on success or `false` on failure. Call `GetError` for error details.
 
 ## 4. OpenVINO Backend
 
@@ -222,7 +319,8 @@ A TensorRT engine depends on the TensorRT version, operating system, GPU archite
 
 | Backend | Device | Common model formats | Behavior when `use_gpu=false` |
 | ------- | ------ | -------------------- | ----------------------------- |
-| ONNX Runtime | Depends on the release package and execution provider | `.onnx` | Can use the CPU |
+| ONNX Runtime CPU | CPU | `.onnx` | Uses the CPU |
+| DirectML | AMD/Intel/NVIDIA GPU on Windows; CPU is also available | `.onnx` | Uses the CPU |
 | OpenVINO | CPU or Intel GPU, depending on installed plugins | `.onnx`, `.xml` + `.bin` | Uses the CPU |
 | TensorRT | NVIDIA GPU only | `.onnx`, `.engine`, `.plan` | Still uses the NVIDIA GPU |
 
@@ -240,9 +338,9 @@ If this project has helped you, scan the QR code below to buy the author a coffe
 
 ## Changelog
 
-### v4.1.0 `2026.7.12`
+### v4.1.0 `2026.7.15`
 
-- Added TensorRT backend support. Join the QQ group to download the runtime.
+- Added TensorRT backend support.
 
 ### v4.0.0 `2026.6.7`
 

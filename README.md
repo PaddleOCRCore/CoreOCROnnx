@@ -7,7 +7,7 @@
 </p>
 
 ## 一、简介
-免费离线极速版OCR组件，支持 ONNX Runtime、OpenVINO 和 TensorRT 运行时包三选一。不同后端的设备支持范围不同：ONNX Runtime/OpenVINO 包可按发布说明使用 CPU 或对应 GPU，TensorRT 包仅支持 NVIDIA GPU。支持C#/C++/java/Python/Go语言开发及多线程并发。
+免费离线极速版OCR组件，支持 ONNX Runtime、DirectML、OpenVINO 和 TensorRT 后端。不同后端的设备、平台及授权要求不同；应用只需选择一个与目标环境匹配的运行时包。支持C#/C++/java/Python/Go语言开发及多线程并发。
 喜欢的请给本项目点一个免费的Star
 
 支持最新PP-OCRv6/PP-OCRv5模型，向下兼容V4/V3模型
@@ -19,17 +19,59 @@ Paddle推理库版本请移步：[PaddleOCRCore/PaddleOCRApi](https://github.com
 ## 二、运行环境
 项目运行环境为VS2022+.net10.0：
 
-1、核心文件PaddleOCROnnx.dll为C++动态链接库。其 CPU/GPU 能力取决于所使用的后端运行时包；TensorRT 版仅支持 Windows/Linux x64 NVIDIA GPU。
+1、核心文件 `PaddleOCROnnx.dll`（Linux 为 `PaddleOCROnnx.so`）是 C++ 动态链接库。其 CPU/GPU 能力取决于所使用的后端运行时包；应用进程的平台和架构必须与运行时包一致。
 
 ### 运行时包下载
 
-请在 GitHub Release 中下载对应后端的运行时包，三选一：
+推荐通过 [NuGet](https://www.nuget.org/packages?q=CoreOCRRuntime) 安装。C# 应用通常需要：
 
-- ONNX Runtime 后端：[OCRRuntimeOnnx_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOnnx_v4.0.0.zip)
-- OpenVINO 后端：[OCRRuntimeOpenVino_v4.0.0.zip](https://github.com/PaddleOCRCore/CoreOCROnnx/releases/download/v4.0.0/OCRRuntimeOpenVino_v4.0.0.zip)
-- TensorRT 后端：因TensorRT较大，百度网盘下载：[CoreOCROnnxApi4.1-TensorRT.zip](https://pan.baidu.com/s/1h8tyeGzG0dukzMVDUwPqWQ?pwd=bejk)
+1. `CoreOCROnnx.SDK`：C# 接口、数据模型和服务实现。
+2. 一个 `CoreOCRRuntime.*`：与目标操作系统、进程架构和推理设备匹配的原生运行时包。
 
-将压缩包中的 `PaddleOCROnnx.dll` 及其同目录依赖文件复制到 C# 程序运行目录即可。当前发布包为 Windows x64，因此 C# 项目也应使用 x64 运行。
+> 一个应用只能安装一个 runtime 包。多个包包含同名的 `PaddleOCROnnx.dll` 或 `PaddleOCROnnx.so`，同时引用会互相覆盖。需要发布多个后端时，请使用不同项目配置或独立发布目录。
+
+例如，Windows x64 CPU 项目可执行：
+
+```bash
+dotnet add package CoreOCROnnx.SDK
+dotnet add package CoreOCRRuntime.Onnx.CPU.win-x64
+```
+
+本仓库源码已经通过项目引用使用 `CoreOCROnnx.SDK`，WebApi 项目只需保留一个所需的 `CoreOCRRuntime.*` 包引用。
+
+#### Runtime 包列表
+
+| NuGet 包 | 平台/架构 | 推理设备 | 主要模型格式 | License 要求 |
+| --- | --- | --- | --- | --- |
+| `CoreOCRRuntime.Onnx.CPU.win-x86` | Windows x86 | CPU | `.onnx` | 不需要 |
+| `CoreOCRRuntime.Onnx.CPU.win-x64` | Windows x64 | CPU | `.onnx` | 不需要 |
+| `CoreOCRRuntime.Onnx.CPU.linux-x64` | Linux x64 | CPU | `.onnx` | 需要 |
+| `CoreOCRRuntime.DirectML.win-x86` | Windows x86 | DirectML GPU，也可使用 CPU | `.onnx` | CPU 不需要；GPU 需要 |
+| `CoreOCRRuntime.DirectML.win-x64` | Windows x64 | DirectML GPU，也可使用 CPU | `.onnx` | CPU 不需要；GPU 需要 |
+| `CoreOCRRuntime.OpenVino.CPU.win-x64` | Windows x64 | CPU | `.onnx`、`.xml` + `.bin` | 不需要 |
+| `CoreOCRRuntime.OpenVino.GPU.win-x64` | Windows x64 | Intel GPU，也包含 CPU 插件 | `.onnx`、`.xml` + `.bin` | CPU 不需要；GPU 需要 |
+| `CoreOCRRuntime.TensorRT.GPU.win-x64` | Windows x64 | NVIDIA GPU | `.onnx`、`.engine`、`.plan` | 需要 GPU 授权 |
+| `CoreOCRRuntime.TensorRT.GPU.linux-x64` | Linux x64 | NVIDIA GPU | `.onnx`、`.engine`、`.plan` | 需要 GPU 授权 |
+
+选择建议：
+
+- 通用 CPU 部署或希望减少外部依赖：选择对应平台的 ONNX Runtime CPU 包。
+- Windows 上使用 AMD、Intel 或 NVIDIA GPU：选择 DirectML 包。
+- Windows Intel CPU 或 Intel GPU：选择对应的 OpenVINO 包。
+- Windows/Linux NVIDIA GPU 且性能优先：选择 TensorRT 包。
+
+Runtime 包附带 PP-OCRv6 ONNX 示例模型、识别字典和相关资源，安装或发布后可在应用输出目录中找到，也可以替换为自己的兼容模型。Windows 包还提供 License 申请码工具；Linux 请通过 SDK 的 `GetLicenseRequestCode()` 获取申请码。发布时请保留实际使用的模型和字典文件。
+
+#### 授权与原生依赖
+
+- Windows CPU 模式免费，不需要激活 License。
+- Windows GPU 模式（DirectML、OpenVINO GPU、TensorRT）需要激活允许 GPU 的 License。
+- Linux 无论使用 CPU 还是 GPU 都需要激活 License；NuGet 包不包含已激活的商业 License。
+- 需要授权时，请在最终部署机器上获取申请码，并前往 [CoreOCR 在线授权](http://ocr.axinw.com) 申请匹配当前机器、平台和产品版本的 License。
+- DirectML/OpenVINO 的依赖文件由对应 runtime 包带入输出目录，请勿只复制 `PaddleOCROnnx.dll`。
+- TensorRT runtime 包不包含 NVIDIA TensorRT、CUDA 和显卡驱动，目标机器需另行安装 TensorRT 11.1、CUDA 12.9 Runtime 及兼容驱动。
+
+需要手动部署原生文件时，可从 [GitHub Releases](https://github.com/PaddleOCRCore/CoreOCROnnx/releases) 下载对应版本。必须复制压缩包内的完整后端依赖，不能混用不同后端或不同架构的文件。
 
 ### [WebApi接口文档](./PaddleOCROnnxApi/README.md)
 WebApi部署后可供前端调用。
@@ -63,6 +105,61 @@ WebApi部署后可供前端调用。
 | visualize                    | false  | 是否对结果进行可视化，为true时，预测结果会保存在output文件夹下和输入图像同名的图像上。   |
 | enable_log                   | false  | 是否输出到文件日志，在log目录下                                                          |
 | isOutputConsole              | true   | 是否输出到控制台日志                                                                     |
+
+### YoloInitJson 参数说明
+
+`YoloInitJson` 使用 JSON 字符串初始化 YOLO 模型。完整的 `parameterjson` 示例：
+
+```json
+{
+    "model_type": 1,
+    "input_width": 640,
+    "input_height": 640,
+    "confidence_threshold": 0.25,
+    "point_score_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "enable_nms": false,
+    "key_points_num": 17,
+    "num_threads": 4,
+    "use_gpu": false,
+    "gpu_id": 0,
+    "warmup": true,
+    "visualize": false,
+    "enable_log": false,
+    "class_names_preset": "auto",
+    "class_names": ["person", "car"],
+    "class_names_file": "coco.names"
+}
+```
+
+| 参数名称 | 示例值 | 说明 |
+| --- | --- | --- |
+| `model_type` | `1` | 模型类型：`1`=detect、`2`=pose、`3`=classification、`4`=detect FP16、`5`=pose FP16、`6`=classification FP16、`7`=seg、`8`=obb、`9`=seg FP16、`10`=obb FP16。 |
+| `input_width` / `input_height` | `640` | 模型输入尺寸。固定尺寸模型可自动从 ONNX 读取；动态尺寸模型未传入时默认使用 640。 |
+| `confidence_threshold` | `0.25` | 目标或类别置信度阈值，低于该值的候选结果会被过滤。 |
+| `point_score_threshold` | `0.25` | pose 关键点绘制阈值，低于该值的关键点和骨架线不绘制。 |
+| `iou_threshold` | `0.45` | NMS 重叠框过滤阈值，仅在 `enable_nms=true` 时生效。 |
+| `enable_nms` | `false` | 是否启用 NMS，默认 `false`。为 `false` 时不按重叠框过滤检测结果；Tensor 接口的原始输出不受该参数影响。 |
+| `key_points_num` | `17` | pose 模型的关键点数量，COCO 人体姿态模型通常为 17。 |
+| `num_threads` | `4` | CPU 推理线程数，默认值为 1。 |
+| `use_gpu` | `false` | 是否使用 GPU 或加速后端；必须由 License 允许，并使用对应后端构建。TensorRT 后端始终使用 GPU。 |
+| `gpu_id` | `0` | GPU 设备编号，默认值为 0。 |
+| `warmup` | `true` | 初始化后是否执行一次预热推理，默认值为 `true`。 |
+| `visualize` | `false` | 是否将可视化图片保存到 `output` 目录。JSON 接口会返回 `vis_path`；Tensor 接口仅产生可视化副作用。 |
+| `enable_log` | `false` | 是否将 YOLO 运行日志输出到控制台。 |
+| `class_names_preset` | `"auto"` | 类别名称预设：`auto` 表示按模型任务自动设置，`none` 表示不使用预设类别名。 |
+| `class_names` | `["person", "car"]` | 类别名称，可传 JSON 数组，也可传逗号或换行分隔的字符串；优先级高于 `class_names_preset`。 |
+| `class_names_file` | `"coco.names"` | 类别名称文件路径，按行读取；设置后会覆盖 `class_names`。 |
+
+接口定义：
+
+```cpp
+Paddle_API bool CALL_CONV YoloInitJson(const char* modelPath, const char* parameterjson);
+```
+
+- `modelPath`：YOLO ONNX 模型路径；使用 OpenVINO 或 TensorRT 后端时，也可使用对应后端支持的模型格式。
+- `parameterjson`：YOLO 初始化参数 JSON 字符串。
+- 返回值：成功返回 `true`，失败返回 `false`；错误信息可通过 `GetError` 获取。
 
 ## 四、OpenVINO 后端说明
 
@@ -218,7 +315,8 @@ TensorRT engine 与生成它的 TensorRT 版本、操作系统、GPU 架构及�
 
 | 后端 | 设备 | 常用模型格式 | `use_gpu=false` |
 | ---- | ---- | ------------ | --------------- |
-| ONNX Runtime | 取决于发布包和执行提供程序 | `.onnx` | 可使用 CPU |
+| ONNX Runtime CPU | CPU | `.onnx` | 使用 CPU |
+| DirectML | Windows AMD/Intel/NVIDIA GPU，也可使用 CPU | `.onnx` | 使用 CPU |
 | OpenVINO | CPU 或 Intel GPU，取决于插件 | `.onnx`、`.xml` + `.bin` | 使用 CPU |
 | TensorRT | 仅 NVIDIA GPU | `.onnx`、`.engine`、`.plan` | 仍使用 NVIDIA GPU |
 
@@ -236,8 +334,8 @@ TensorRT engine 与生成它的 TensorRT 版本、操作系统、GPU 架构及�
 <img src="./CoreOCROnnx.SDK/OCRRuntime/donate.jpg" width="300px;" />
 
 ## 更新日志
-### v4.1.0 `2026.7.12`
-- 增加后端TensorRT支持，入群下载运行时。
+### v4.1.0 `2026.7.15`
+- 增加后端TensorRT支持。
 ### v4.0.0 `2026.6.7`
 - 增加Yolo支持，增加OpenVino支持
 ### v1.0.0 `2026.1.18`
