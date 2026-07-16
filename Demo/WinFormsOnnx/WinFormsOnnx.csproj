@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CoreOCRRuntime.Onnx.CPU.win-x64" Version="4.1.0-beta01" />
+    <PackageReference Include="CoreOCRRuntime.Onnx.CPU.win-x64" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>
