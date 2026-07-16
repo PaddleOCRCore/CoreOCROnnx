@@ -23,7 +23,7 @@ using System.Runtime.InteropServices;
 namespace CoreOCROnnx.SDK
 {
     /// <summary>
-    /// 调用PaddlerOCR.dll动态链接库
+    /// 调用PaddleOCROnnx.dll动态链接库
     /// </summary>
     internal class OCRSDK
     {
