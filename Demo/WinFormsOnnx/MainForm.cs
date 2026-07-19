@@ -159,7 +159,7 @@ namespace WinFormsApp
             builder.AppendLine($"授权状态: {(status.Activated ? "已授权" : "未授权")}");
             builder.AppendLine($"产品名称: {(string.IsNullOrWhiteSpace(status.ProductName) ? "-" : status.ProductName)}");
             builder.AppendLine($"授权编号: {(string.IsNullOrWhiteSpace(status.LicenseId) ? "-" : status.LicenseId)}");
-            builder.AppendLine($"授权版本: {(string.IsNullOrWhiteSpace(status.Version) ? "-" : status.Version)}");
+            builder.AppendLine($"授权版本: {(string.IsNullOrWhiteSpace(status.Product_Version) ? "-" : status.Product_Version)}");
             builder.AppendLine($"授权状态描述: {(string.IsNullOrWhiteSpace(status.LicenseState) ? "-" : status.LicenseState)}");
             builder.AppendLine($"GPU权限: {(status.AllowGpu ? "允许" : "不允许")}");
             builder.AppendLine($"设备绑定: {(status.MachineBound ? "已绑定" : "未绑定")}");

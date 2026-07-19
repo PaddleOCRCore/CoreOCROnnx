@@ -211,7 +211,7 @@ namespace CoreOCROnnx.WebApi.Controllers
                 ProductName = status?.ProductName,
                 Customer = status?.Customer,
                 LicenseId = status?.LicenseId,
-                ProductVersion = status?.Version,
+                ProductVersion = status?.Product_Version,
                 Platforms = status?.Platforms == null || status.Platforms.Count == 0 ? string.Empty : string.Join(", ", status.Platforms),
                 Products = LicenseModuleName,
                 StartTime = FormatLicenseTime(status?.StartTime),

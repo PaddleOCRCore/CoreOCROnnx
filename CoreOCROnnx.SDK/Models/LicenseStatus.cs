@@ -41,8 +41,8 @@ namespace CoreOCROnnx.SDK
         /// <summary>
         /// 授权版本
         /// </summary>
-        [JsonProperty("version")]
-        public string Version { get; set; }
+        [JsonProperty("product_version")]
+        public string Product_Version { get; set; }
 
         /// <summary>
         /// 授权平台
