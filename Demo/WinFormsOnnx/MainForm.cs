@@ -46,7 +46,7 @@ namespace WinFormsApp
         public static string RecFilepath = "";
         public static bool outPutJson = false;//是否输出JSON
         public static int recCount = 1; //OCR识别时同一张图片模拟调用接口次数
-        public static int model_type = 0;//模型类型：01是V6，1是V5，2是V4
+        public static int model_type = 0;//模型类型
         private bool isOCRBusy;
         public MainForm()
         {
@@ -225,18 +225,24 @@ namespace WinFormsApp
                             OCREngine.keys = "ppocrv6small_dict.txt";
                             break;
                         case 2:
+                            OCREngine.det_infer = "PP-OCRv6_medium_det.onnx";//OCR V6检测模型
+                            OCREngine.rec_infer = "PP-OCRv6_medium_rec.onnx";//OCR V6识别模型
+                            OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
+                            OCREngine.keys = "ppocrv6medium_dict.txt";
+                            break;
+                        case 3:
                             OCREngine.det_infer = "ch_PP-OCRv5_mobile_det.onnx";//OCR V5检测模型
                             OCREngine.rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR V5识别模型
                             OCREngine.cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
                             OCREngine.keys = "ppocrv5_dict.txt";
                             break;
-                        case 3:
+                        case 4:
                             OCREngine.det_infer = "ch_PP-OCRv5_det_server.onnx";//OCR V5检测模型
                             OCREngine.rec_infer = "ch_PP-OCRv5_rec_server.onnx";//OCR V5识别模型
                             OCREngine.cls_infer = "ch_PP-LCNet_x1_0_textline_ori_cls_server.onnx";
                             OCREngine.keys = "ppocrv5_dict.txt";
                             break;
-                        case 4:
+                        case 5:
                             OCREngine.det_infer = "ch_PP-OCRv4_det_infer.onnx";//OCR V4检测模型
                             OCREngine.rec_infer = "ch_PP-OCRv4_rec_infer.onnx";//OCR V4识别模型
                             OCREngine.cls_infer = "ch_ppocr_mobile_v2.0_cls_infer.onnx";

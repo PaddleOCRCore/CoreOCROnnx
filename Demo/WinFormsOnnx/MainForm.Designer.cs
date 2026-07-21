@@ -233,7 +233,7 @@
             // comboBoxModel
             // 
             comboBoxModel.FormattingEnabled = true;
-            comboBoxModel.Items.AddRange(new object[] { "PP-OCRv6_tiny", "PP-OCRv6_small", "PP-OCRv5_mobile", "PP-OCRv5_server", "ch_PP-OCRv4" });
+            comboBoxModel.Items.AddRange(new object[] { "PP-OCRv6_tiny", "PP-OCRv6_small", "PP-OCRv6_medium", "PP-OCRv5_mobile", "PP-OCRv5_server", "ch_PP-OCRv4" });
             comboBoxModel.Location = new Point(92, 89);
             comboBoxModel.Name = "comboBoxModel";
             comboBoxModel.Size = new Size(321, 25);
@@ -711,21 +711,21 @@
             // toolStripMenuItemGetLicenseRequestCode
             // 
             toolStripMenuItemGetLicenseRequestCode.Name = "toolStripMenuItemGetLicenseRequestCode";
-            toolStripMenuItemGetLicenseRequestCode.Size = new Size(180, 22);
+            toolStripMenuItemGetLicenseRequestCode.Size = new Size(160, 22);
             toolStripMenuItemGetLicenseRequestCode.Text = "生成授权申请码";
             toolStripMenuItemGetLicenseRequestCode.Click += ToolStripMenuItemGetLicenseRequestCode_Click;
             // 
             // ToolStripMenuItemApplyGPUTrial
             // 
             ToolStripMenuItemApplyGPUTrial.Name = "ToolStripMenuItemApplyGPUTrial";
-            ToolStripMenuItemApplyGPUTrial.Size = new Size(180, 22);
+            ToolStripMenuItemApplyGPUTrial.Size = new Size(160, 22);
             ToolStripMenuItemApplyGPUTrial.Text = "免费试用GPU";
             ToolStripMenuItemApplyGPUTrial.Click += ToolStripMenuItemApplyGPUTrial_Click;
             // 
             // toolStripMenuItemCheckLicense
             // 
             toolStripMenuItemCheckLicense.Name = "toolStripMenuItemCheckLicense";
-            toolStripMenuItemCheckLicense.Size = new Size(180, 22);
+            toolStripMenuItemCheckLicense.Size = new Size(160, 22);
             toolStripMenuItemCheckLicense.Text = "查看GPU授权";
             toolStripMenuItemCheckLicense.Click += ToolStripMenuItemCheckLicense_Click;
             // 
