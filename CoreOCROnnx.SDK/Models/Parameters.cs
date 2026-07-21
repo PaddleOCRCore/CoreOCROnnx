@@ -137,6 +137,11 @@ namespace CoreOCROnnx.SDK
         /// </summary>
         [MarshalAs(UnmanagedType.I1)]
         public bool isOutputConsole;
+        /// <summary>
+        /// OCR引擎实例数量，默认1，最大10
+        /// </summary>
+        [MarshalAs(UnmanagedType.I4)]
+        public int ocr_instance_count;
 
         public static OCRParameter CreateDefault()
         {
@@ -156,7 +161,8 @@ namespace CoreOCROnnx.SDK
                 mostAngle = true,
                 visualize = false,
                 enable_log = false,
-                isOutputConsole = true
+                isOutputConsole = true,
+                ocr_instance_count = 1
             };
         }
     }

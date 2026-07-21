@@ -194,10 +194,6 @@ namespace CoreOCROnnx.WebApi
         /// </summary>
         public string keyFile { get; set; }
         /// <summary>
-        /// 授权文件路径，存在时初始化前自动激活
-        /// </summary>
-        public string OCRLicense { get; set; } = @"models\paddleocr.lic";
-        /// <summary>
         /// CPU内存占用上限，单位MB。-1表示不限制，达到上限将自动回收
         /// </summary>
         public int cpu_mem { get; set; } = 2000;
@@ -258,5 +254,13 @@ namespace CoreOCROnnx.WebApi
         /// 是否输出到控制台日志
         /// </summary>
         public bool isOutputConsole { get; set; } = true;
+        /// <summary>
+        /// OCR引擎实例数量，默认1，最大10
+        /// </summary>
+        public int ocr_instance_count { get; set; } = 1;
+        /// <summary>
+        /// 授权文件路径，存在时初始化前自动激活
+        /// </summary>
+        public string OCRLicense { get; set; } = @"models\paddleocr.lic";
     }
 }
