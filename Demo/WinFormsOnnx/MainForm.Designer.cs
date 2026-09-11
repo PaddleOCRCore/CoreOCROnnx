@@ -276,7 +276,7 @@
             numericUpDownThread.Name = "numericUpDownThread";
             numericUpDownThread.Size = new Size(80, 23);
             numericUpDownThread.TabIndex = 13;
-            numericUpDownThread.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            numericUpDownThread.Value = new decimal(new int[] { 3, 0, 0, 0 });
             numericUpDownThread.ValueChanged += numericUpDownThread_ValueChanged;
             // 
             // label5
@@ -739,7 +739,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "CoreOCR识别（后端支持OnnxRuntime、OpenVino、TensorRT）V4.1.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.git";
+            Text = "CoreOCR识别（后端支持OnnxRuntime、OpenVino、TensorRT）V4.2.0--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.git";
             Load += MainForm_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();

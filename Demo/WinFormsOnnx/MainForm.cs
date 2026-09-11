@@ -203,7 +203,7 @@ namespace WinFormsApp
         {
             try
             {
-                SetOCRBusy(true);
+                SetOCRInitializing();
                 LogMessage($"{DateTime.Now:HH:mm:ss.fff}:正在初始化，请稍后，若后端采用TensorRT，初次初始化会自动转换模型为.engine格式。");
                 string initmsg = await Task.Run(() =>
                 {
@@ -361,7 +361,7 @@ namespace WinFormsApp
             });
         }
 
-        private void buttonYoloInit_Click(object? sender, EventArgs e)
+        private async void buttonYoloInit_Click(object? sender, EventArgs e)
         {
             try
             {
@@ -376,7 +376,27 @@ namespace WinFormsApp
                 }
 
                 string parameterJson = BuildYoloParameterJson();
-                ocrService.YoloInitJson(yoloModelPath, parameterJson);
+                bool yoloUseGpu = comboBoxYoloUseGpu?.SelectedIndex == 1;
+                string modelPath = yoloModelPath;
+                string licensePath = OCREngine.ResolveLicensePath();
+
+                if (buttonYoloInit != null) buttonYoloInit.Enabled = false;
+                LogYoloMessage($"{DateTime.Now:HH:mm:ss.fff}:正在初始化，请稍后，若后端采用TensorRT，初次初始化会自动转换模型为.engine格式。");
+
+                await Task.Run(() =>
+                {
+                    if (yoloUseGpu && !OCREngine.ActivateLicenseIfExists())
+                    {
+                        string error = ocrService.GetError();
+                        throw new InvalidOperationException(
+                            string.IsNullOrWhiteSpace(error)
+                                ? $"GPU授权未激活。请确认授权文件存在且有效: {licensePath}"
+                                : $"GPU授权未激活。请确认授权文件存在且有效: {licensePath}{Environment.NewLine}DLL错误信息: {error}");
+                    }
+
+                    ocrService.YoloInitJson(modelPath, parameterJson);
+                });
+
                 yoloInitialized = true;
                 if (buttonYoloInit != null) buttonYoloInit.Enabled = false;
                 if (buttonYoloDetect != null) buttonYoloDetect.Enabled = true;
@@ -387,6 +407,7 @@ namespace WinFormsApp
             }
             catch (Exception ex)
             {
+                if (buttonYoloInit != null) buttonYoloInit.Enabled = true;
                 LogYoloMessage($"{DateTime.Now:HH:mm:ss.fff}:{ex.Message}");
             }
         }
@@ -429,7 +450,7 @@ namespace WinFormsApp
             LogYoloMessage($"结束时间: {DateTime.Now:HH:mm:ss.fff}");
             LogYoloMessage($"YOLO识别耗时 {stopwatch.ElapsedMilliseconds}毫秒");
             LogYoloMessage(FormatJsonSafe(json));
-            LogMessage("===============================================");
+            LogYoloMessage("===============================================");
             string imageToShow = filePath;
             try
             {
@@ -909,17 +930,32 @@ namespace WinFormsApp
                     .Replace("\\r", Environment.NewLine);
             }
         }
+        private void SetOCRInitializing()
+        {
+            isOCRBusy = true;
+            buttonInit.Enabled = false;
+            buttonFreeEngine.Enabled = false;
+            buttonRec.Enabled = false;
+            buttonPostFile.Enabled = false;
+            buttonGetBase64.Enabled = false;
+            comboBoxModel.Enabled = false;
+            comboBoxuse_gpu.Enabled = false;
+            numericUpDownThread.Enabled = false;
+            numDowncpu_threads.Enabled = false;
+            numDowngpu_id.Enabled = false;
+            numericUpDowncpu_mem.Enabled = false;
+        }
         private void SetOCRBusy(bool busy)
         {
             isOCRBusy = busy;
             buttonInit.Enabled = !busy;
             buttonFreeEngine.Enabled = busy;
             buttonRec.Enabled = busy;
-            buttonPostFile.Enabled = busy;
+            buttonPostFile.Enabled = true;
             buttonGetBase64.Enabled = !busy;
             comboBoxModel.Enabled = !busy;
             comboBoxuse_gpu.Enabled = !busy;
-            numericUpDownThread.Enabled = !busy;
+            numericUpDownThread.Enabled = true;
             numDowncpu_threads.Enabled = !busy;
             numDowngpu_id.Enabled = !busy ;
             numericUpDowncpu_mem.Enabled = !busy;

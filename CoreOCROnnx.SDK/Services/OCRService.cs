@@ -394,10 +394,19 @@ namespace CoreOCROnnx.SDK
                     result = OcrServiceHelper.DeserializeObject<OCRResult>(json);
                     result.JsonText = json;
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    result.StrRes = json + e.Message;
+                    var lastErr = GetError();
+                    if (!string.IsNullOrEmpty(lastErr))
+                    {
+                        throw new OCRException("OCR内部错误：" + lastErr);
+                    }
+                    throw new OCRException("OCR结果Json反序列化失败:" + ex.Message);
                 }
+            }
+            catch (OCRException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
