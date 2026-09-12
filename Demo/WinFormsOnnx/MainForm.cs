@@ -41,7 +41,7 @@ namespace WinFormsApp
         private string yoloModelPath = "";
         public static bool use_gpu = false;//是否使用GPU
         public static int gpu_id = 0;//GPUId
-        public static int cpu_threads = 30; //CPU预测时的线程数
+        public static int cpu_threads = 8; //CPU预测时的线程数
         public static int cpu_mem = 4000;//CPU内存占用上限，单位MB。-1表示不限制，达到上限将自动回收
         public static string RecFilepath = "";
         public static bool outPutJson = false;//是否输出JSON

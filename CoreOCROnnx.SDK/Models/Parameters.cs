@@ -73,7 +73,7 @@ namespace CoreOCROnnx.SDK
         [MarshalAs(UnmanagedType.I4)]
         public int cpu_mem;
         /// <summary>
-        /// CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快，默认10
+        /// CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快，默认8
         /// </summary>
         public int cpu_threads;
         /// <summary>
@@ -148,7 +148,7 @@ namespace CoreOCROnnx.SDK
             return new OCRParameter
             {
                 cpu_mem = 2000,
-                cpu_threads = 10,
+                cpu_threads = 8,
                 use_gpu = false,
                 gpu_id = 0,
                 gpu_mem = 4000,

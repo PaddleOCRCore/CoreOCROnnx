@@ -198,9 +198,9 @@ namespace CoreOCROnnx.WebApi
         /// </summary>
         public int cpu_mem { get; set; } = 2000;
         /// <summary>
-        /// CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快，默认10
+        /// CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快，默认8
         /// </summary>
-        public int cpu_threads { get; set; } = 10;
+        public int cpu_threads { get; set; } = 8;
         /// <summary>
         /// 是否使用GPU
         /// </summary>

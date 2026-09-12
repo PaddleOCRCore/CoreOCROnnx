@@ -60,7 +60,7 @@ int main()
     keys += "/models/ppocrv5_dict.txt";
     OCRParameter parameter;
     parameter.use_gpu = false;//是否使用GPU
-    parameter.cpu_threads = 30;//CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快，默认10
+    parameter.cpu_threads = 8;//CPU预测时的线程数，默认8
     parameter.cpu_mem = 0;//CPU内存占用上限，单位MB。 - 1表示不限制
     parameter.padding = 10; //图像预处理，在图片外周添加白边，用于提升识别率，文字框没有正确框住所有文字时，增加此值。
     parameter.maxSideLen = 512; //按图片最长边的长度，此值为0代表不缩放，例：1024，如果图片长边大于1024则把图像整

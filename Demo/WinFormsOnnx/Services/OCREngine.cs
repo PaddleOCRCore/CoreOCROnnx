@@ -29,7 +29,7 @@ namespace WinFormsApp.Services
         public static string rec_infer = "ch_PP-OCRv5_rec_mobile_infer.onnx";//OCR识别模型
         public static string cls_infer = "ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx";
         public static string keys = "ppocrv5_dict.txt";
-        public static int cpu_threads = 30; //CPU预测时的线程数
+        public static int cpu_threads = 8; //CPU预测时的线程数
         private static bool visualize = true;//是否对结果进行可视化，为true时，预测结果会保存在output文件夹下。
 
         public static bool use_gpu = false;//是否使用GPU

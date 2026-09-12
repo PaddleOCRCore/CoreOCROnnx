@@ -140,7 +140,7 @@ namespace CoreOCROnnx.WebApi.Services
 
             para.ocrpara = oCRParameter;
             para.paraType = EnumParaType.Class;
-            //string ocrJson = "{\"cpu_mem\":0,\"cpu_threads\":10,\"use_gpu\":false,\"gpu_id\":-1,\"gpu_mem\":4000,\"padding\":50,\"maxSideLen\":1024,\"boxScoreThresh\":0.5,\"boxThresh\":0.3,\"unClipRatio\":1.6,\"doAngle\":true,\"mostAngle\":true,\"visualize\":false,\"enable_log\":false,\"isOutputConsole\":true}";
+            //string ocrJson = "{\"cpu_mem\":0,\"cpu_threads\":8,\"use_gpu\":false,\"gpu_id\":-1,\"gpu_mem\":4000,\"padding\":50,\"maxSideLen\":1024,\"boxScoreThresh\":0.5,\"boxThresh\":0.3,\"unClipRatio\":1.6,\"doAngle\":true,\"mostAngle\":true,\"visualize\":false,\"enable_log\":false,\"isOutputConsole\":true}";
             //初始化通用文字引擎
             string msg = "";
             try

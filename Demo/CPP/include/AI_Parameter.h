@@ -24,7 +24,7 @@ using namespace std;
 
 struct OCRParameter {
 	int cpu_mem = 0; //CPU内存占用上限，单位MB。-1表示不限制
-	int cpu_threads = 10; //CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快，默认10
+	int cpu_threads = 8; //CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快，默认10
 
 	bool use_gpu = false; //是否使用GPU
 	int gpu_id = -1;         //GPU id，使用GPU时有效
