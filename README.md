@@ -112,6 +112,7 @@ WebApi部署后可供前端调用。
 | 通用参数                     | --     | -- |
 | cpu_mem                      | 4000   | CPU内存占用上限，单位MB。-1表示不限制                                                    |
 | cpu_math_library_num_threads | 10     | CPU预测时的线程数，在机器核数充足的情况下，该值越大，预测速度越快                        |
+| cpu_threads                  | 8      | CPU预测时的线程数，默认值为8                                                             |
 | use_gpu                      | false  | 是否使用GPU；TensorRT 后端始终使用 GPU，此参数仅为 ABI 兼容保留                          |
 | gpu_id                       | 0      | GPU id；TensorRT 后端表示 CUDA 设备编号                                                   |
 | gpu_mem                      | 4000   | GPU 内存参数；实际含义及支持情况取决于所使用的后端                                       |

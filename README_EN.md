@@ -96,6 +96,7 @@ After deployment, the Web API can be called by frontend applications.
 | General parameters | -- | -- |
 | cpu_mem | 4000 | CPU memory limit in MB. Use `-1` for no limit. |
 | cpu_math_library_num_threads | 10 | Number of CPU inference threads. More threads generally improve inference speed when sufficient CPU cores are available. |
+| cpu_threads | 8 | Number of CPU inference threads. The default value is 8. |
 | use_gpu | false | Whether to use a GPU. The TensorRT backend always uses a GPU; this parameter is retained only for ABI compatibility. |
 | gpu_id | 0 | GPU ID. For TensorRT, this selects the CUDA device. |
 | gpu_mem | 4000 | GPU memory parameter. Its actual meaning and availability depend on the selected backend. |
