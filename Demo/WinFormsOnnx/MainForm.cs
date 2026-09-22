@@ -45,12 +45,15 @@ namespace WinFormsApp
         public static int cpu_mem = 4000;//CPU内存占用上限，单位MB。-1表示不限制，达到上限将自动回收
         public static string RecFilepath = "";
         public static bool outPutJson = false;//是否输出JSON
-        public static int recCount = 1; //OCR识别时同一张图片模拟调用接口次数
+        public static int recCount = 3; //OCR识别时同一张图片模拟调用接口次数
         public static int model_type = 0;//模型类型
+        public static int ocr_instance_count = 3;
         private bool isOCRBusy;
         public MainForm()
         {
             InitializeComponent();
+            Text = $"{Text} V{typeof(MainForm).Assembly.GetName().Version?.ToString(3)}--QQ群：475159576 https://github.com/PaddleOCRCore/CoreOCROnnx.git";
+            textBoxResult.MaxLength = int.MaxValue;
             ocrService = OCREngine.ocrService;
         }
 
@@ -176,8 +179,6 @@ namespace WinFormsApp
         {
             try
             {
-                comboBoxuse_gpu.SelectedIndex = 0;
-                comboBoxJson.SelectedIndex = 0;
                 comboBoxModel.SelectedIndex = 0;
                 comboBoxYoloModelType.SelectedIndex = 0;
                 comboBoxYoloUseGpu.SelectedIndex = use_gpu ? 1 : 0;
@@ -210,6 +211,8 @@ namespace WinFormsApp
                     OCREngine.use_gpu = use_gpu;
                     OCREngine.gpu_id = gpu_id;
                     OCREngine.cpu_threads = cpu_threads;
+                    OCREngine.returnCharBoxes = checkBoxreturnCharBoxes.Checked;
+                    OCREngine.ocr_instance_count = ocr_instance_count;
                     switch (model_type)
                     {
                         case 0:
@@ -698,15 +701,15 @@ namespace WinFormsApp
             }
         }
 
-        private void buttonRec_Click(object sender, EventArgs e)
+        private async void buttonRec_Click(object sender, EventArgs e)
         {
+            buttonRec.Enabled = false;
+            buttonFreeEngine.Enabled = false;
             try
             {
-                textBoxResult.Text = "";
+                textBoxResult.Clear();
                 message = new StringBuilder();
-                string result = "";
-                string recFileName = "";
-                OpenFileDialog OpenFileDialog1 = new OpenFileDialog();
+                using OpenFileDialog OpenFileDialog1 = new OpenFileDialog();
                 OpenFileDialog1.Filter = "图片文件(*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|所有文件(*.*)|*.*";
                 OpenFileDialog1.Multiselect = true;
                 if (DialogResult.OK == OpenFileDialog1.ShowDialog())
@@ -716,33 +719,35 @@ namespace WinFormsApp
                         foreach (var regfile in OpenFileDialog1.FileNames)
                         {
                             string filePath = Path.GetFullPath(regfile);
-                            recFileName = Path.Combine(RecFilepath, Path.GetFileName(filePath + "-result.jpg"));
-                            result = RecOCR(filePath);
-                            // 在工作线程中
-                            var image = ImageTools.LoadImage(recFileName);
-                            pictureBoxImg.Invoke((MethodInvoker)delegate
+                            string recFileName = Path.Combine(RecFilepath, Path.GetFileName(filePath + "-result.jpg"));
+                            await Task.Run(() => RecOCR(filePath));
+                            if (File.Exists(recFileName))
                             {
+                                var image = ImageTools.LoadImage(recFileName);
                                 pictureBoxImg.Image = image;
-                            });
+                            }
                         }
                     }
                 }
-                OpenFileDialog1.Dispose();
-
             }
             catch (Exception ex)
             {
                 LogMessage(ex.Message);
+            }
+            finally
+            {
+                buttonRec.Enabled = isOCRBusy;
+                buttonFreeEngine.Enabled = isOCRBusy;
             }
         }
 
         private void buttonDownModels_Click(object sender, EventArgs e)
         {
             // 定义要打开的 URL
-            string url = "https://www.modelscope.cn/models/RapidAI/RapidOCR/files";
+            string url = "https://www.modelscope.cn/models/paddleocr/PaddleOCROnnx/tree/master/models";
             try
             {
-                LogMessage($"PP-OCRv4/V5-onnx模型下载地址：{url}");
+                LogMessage($"PP-OCRv6/v5/v4-onnx模型下载地址：{url}");
             }
             catch (Exception ex)
             {
@@ -771,56 +776,6 @@ namespace WinFormsApp
             }
         }
 
-        private void buttonPostFile_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(this.textBoxApiAddress.Text.Trim()))
-                {
-                    LogMessage($"{DateTime.Now:HH:mm:ss.fff}:WebApi地址不能为空");
-                }
-                OpenFileDialog OpenFileDialog1 = new OpenFileDialog();
-                OpenFileDialog1.Filter = "图片文件(*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|所有文件(*.*)|*.*";
-                OpenFileDialog1.Multiselect = false;
-                if (DialogResult.OK == OpenFileDialog1.ShowDialog())
-                {
-                    string filePath = OpenFileDialog1.FileName;
-                    textBoxResult.Text = HttpHelper.PostFile(this.textBoxApiAddress.Text.Trim(), filePath);
-                }
-                OpenFileDialog1.Dispose();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"调用接口异常：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-        }
-
-        private void comboBoxuse_gpu_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            switch (this.comboBoxuse_gpu.SelectedIndex)
-            {
-                case 0:
-                    use_gpu = false;
-                    break;
-                case 1:
-                    use_gpu = true;
-                    //StringBuilder sb = new StringBuilder();
-                    //sb.Append($"{DateTime.Now:HH:mm:ss.fff}:使用GPU时请下载对应的paddle_inference解压" + Environment.NewLine);
-                    //sb.Append($"解压后将以下dll文件复制到程序运行文件夹中：" + Environment.NewLine);
-                    //sb.Append($"paddle\\lib目录下的common.dll和paddle_inference.dll" + Environment.NewLine);
-                    //sb.Append($"third_party\\install\\mkldnn\\lib目录下的mkldnn.dll" + Environment.NewLine);
-                    //sb.Append($"third_party\\install\\mklml\\lib目录下的libiomp5md.dll和mklml.dll" + Environment.NewLine);
-                    //sb.Append($"安装指定版本的CUDA以及CUDNN" + Environment.NewLine);
-                    //sb.Append($"复制对应的CUDNN中的cudnn64_8.dll(CUDNN8的文件名)或cudnn64_9.dll(CUDNN9的文件名)到程序运行文件夹中" + Environment.NewLine);
-                    //sb.Append($"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.4\\bin\\cudnn64_8.dll" + Environment.NewLine);
-                    //LogMessage(sb.ToString());
-                    break;
-                default:
-                    use_gpu = false;
-                    break;
-            }
-        }
 
         private void numDowngpu_id_ValueChanged(object sender, EventArgs e)
         {
@@ -847,23 +802,6 @@ namespace WinFormsApp
         {
             if (numericUpDownThread.Value > 0)
                 recCount = Convert.ToInt32(numericUpDownThread.Value);
-        }
-
-        private void comboBoxJson_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            switch (this.comboBoxJson.SelectedIndex)
-            {
-                case 0:
-                    outPutJson = false;
-                    break;
-                case 1:
-                    outPutJson = true;
-                    break;
-                default:
-                    outPutJson = false;
-                    break;
-            }
-
         }
 
         #region LogMessage
@@ -936,14 +874,14 @@ namespace WinFormsApp
             buttonInit.Enabled = false;
             buttonFreeEngine.Enabled = false;
             buttonRec.Enabled = false;
-            buttonPostFile.Enabled = false;
             buttonGetBase64.Enabled = false;
             comboBoxModel.Enabled = false;
-            comboBoxuse_gpu.Enabled = false;
+            chkUseGpu.Enabled = false;
             numericUpDownThread.Enabled = false;
             numDowncpu_threads.Enabled = false;
             numDowngpu_id.Enabled = false;
             numericUpDowncpu_mem.Enabled = false;
+            checkBoxreturnCharBoxes.Enabled = false;
         }
         private void SetOCRBusy(bool busy)
         {
@@ -951,15 +889,40 @@ namespace WinFormsApp
             buttonInit.Enabled = !busy;
             buttonFreeEngine.Enabled = busy;
             buttonRec.Enabled = busy;
-            buttonPostFile.Enabled = true;
             buttonGetBase64.Enabled = !busy;
             comboBoxModel.Enabled = !busy;
-            comboBoxuse_gpu.Enabled = !busy;
+            chkUseGpu.Enabled = !busy;
             numericUpDownThread.Enabled = true;
             numDowncpu_threads.Enabled = !busy;
-            numDowngpu_id.Enabled = !busy ;
+            numDowngpu_id.Enabled = !busy;
             numericUpDowncpu_mem.Enabled = !busy;
             buttonGetBase64.Enabled = true;
+            checkBoxreturnCharBoxes.Enabled = !busy;
+        }
+
+        private void chkUseGpu_CheckedChanged(object sender, EventArgs e)
+        {
+            use_gpu = this.chkUseGpu.Checked;
+            if (use_gpu)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append($"{DateTime.Now:HH:mm:ss.fff}:使用GPU时请下载对应的后端Runtime" + Environment.NewLine);
+                LogMessage(sb.ToString());
+            }
+        }
+
+        private void chkJson_CheckedChanged(object sender, EventArgs e)
+        {
+            outPutJson = this.chkJson.Checked;
+        }
+
+        private void numericocr_instance_count_ValueChanged(object sender, EventArgs e)
+        {
+
+            if (numericocr_instance_count.Value > 0)
+            {
+                ocr_instance_count = Convert.ToInt32(numericocr_instance_count.Value);
+            }
         }
     }
 }

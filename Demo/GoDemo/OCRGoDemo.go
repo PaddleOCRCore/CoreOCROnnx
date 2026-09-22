@@ -52,7 +52,7 @@ func main() {
 		stringToPointer(rootDir+"\\models\\ch_ppocr_mobile_v2.0_cls_infer.onnx"),
 		stringToPointer(rootDir+"\\models\\ch_PP-OCRv5_rec_mobile_infer.onnx"),
 		stringToPointer(rootDir+"\\models\\ppocrv5_dict.txt"),
-		stringToPointer("{\"cpu_mem\":0,\"cpu_threads\":10,\"use_gpu\":false,\"gpu_id\":-1,\"gpu_mem\":4000,\"padding\":50,\"maxSideLen\":1024,\"boxScoreThresh\":0.5,\"boxThresh\":0.3,\"unClipRatio\":1.6,\"doAngle\":true,\"mostAngle\":true,\"visualize\":false,\"enable_log\":false,\"isOutputConsole\":true}"),
+		stringToPointer("{\"returncharboxes\":false,\"cpu_mem\":0,\"cpu_threads\":10,\"use_gpu\":false,\"gpu_id\":-1,\"gpu_mem\":4000,\"padding\":50,\"maxSideLen\":1024,\"boxScoreThresh\":0.5,\"boxThresh\":0.3,\"unClipRatio\":1.6,\"doAngle\":true,\"mostAngle\":true,\"visualize\":false,\"enable_log\":false,\"isOutputConsole\":true}"),
 	)
 
 	// 读取图片目录

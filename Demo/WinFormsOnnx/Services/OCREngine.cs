@@ -46,6 +46,8 @@ namespace WinFormsApp.Services
         public static float boxScoreThresh = 0.5f; //文字框置信度门限，文字框没有正确框住所有文字时，减小此值。
         public static float boxThresh = 0.3f; //自行实验
         public static float unClipRatio = 1.6f; //单个文字框大小倍率，越大时单个文字框越大。此项与图片的大小相关，越大的图片此值应该越大。
+        public static bool returnCharBoxes = false; //是否在结果中返回单字符坐标
+        public static int ocr_instance_count = 3; //OCR引擎实例数量，默认3，最大10
 
         /// <summary>
         /// 激活GPU授权文件
@@ -135,6 +137,8 @@ namespace WinFormsApp.Services
             oCRParameter.visualize = visualize; //是否对结果进行可视化
             oCRParameter.enable_log = true;//是否输出日志
             oCRParameter.isOutputConsole = false;
+            oCRParameter.returnCharBoxes = returnCharBoxes;
+            oCRParameter.ocr_instance_count = ocr_instance_count;
 
             para.ocrpara = oCRParameter;
             para.paraType = EnumParaType.Class;

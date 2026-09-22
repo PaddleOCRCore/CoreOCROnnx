@@ -142,6 +142,11 @@ namespace CoreOCROnnx.SDK
         /// </summary>
         [MarshalAs(UnmanagedType.I4)]
         public int ocr_instance_count;
+        /// <summary>
+        /// 是否在每个文本块中返回逐字符坐标。该字段必须保持在结构体末尾，并按单字节封送以匹配 DLL 的 47 字节布局。
+        /// </summary>
+        [MarshalAs(UnmanagedType.I1)]
+        public bool returnCharBoxes;
 
         public static OCRParameter CreateDefault()
         {
@@ -162,7 +167,8 @@ namespace CoreOCROnnx.SDK
                 visualize = false,
                 enable_log = false,
                 isOutputConsole = true,
-                ocr_instance_count = 1
+                ocr_instance_count = 1,
+                returnCharBoxes = false
             };
         }
     }

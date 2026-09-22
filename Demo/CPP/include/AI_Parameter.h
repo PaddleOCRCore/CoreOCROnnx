@@ -39,5 +39,6 @@ struct OCRParameter {
 	bool visualize = false; //是否对结果进行可视化，为true时，预测结果会保存在output文件夹下和输入图像同名的图像上。
 	bool enable_log = false; //是否输出到文件日志，在log目录下
 	bool isOutputConsole = true;//是否输出到控制台日志
+	bool returnCharBoxes = false;//是否返回单个字符框，true时，返回的json中会包含单个字符框的坐标信息
 };
 #pragma pack(pop)  

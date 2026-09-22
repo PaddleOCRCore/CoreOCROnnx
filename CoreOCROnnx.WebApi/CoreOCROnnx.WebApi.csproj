@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	<Version>4.2.0</Version>
+	<Version>4.2.1</Version>
 	<Platforms>AnyCPU;x64</Platforms>
 	<InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CoreOCRRuntime.Onnx.CPU.win-x64" Version="4.2.0" />
+    <PackageReference Include="CoreOCRRuntime.Onnx.CPU.win-x64" Version="4.2.1" />
     <PackageReference Include="Scalar.AspNetCore.Microsoft" Version="2.17.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageReference Include="System.Drawing.Common" Version="10.0.8" />

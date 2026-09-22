@@ -22,7 +22,7 @@ init_func(
     ctypes.c_char_p((root_dir + "\\models\\ch_PP-LCNet_x0_25_textline_ori_cls_mobile.onnx").encode('utf-8')),
     ctypes.c_char_p((root_dir + "\\models\\PP-OCRv6_tiny_rec.onnx").encode('utf-8')),
     ctypes.c_char_p((root_dir + "\\models\\ppocrv6tiny_dict.txt").encode('utf-8')),
-    ctypes.c_char_p(b'{\"cpu_mem\":0,\"cpu_threads\":30,\"use_gpu\":false,\"gpu_id\":-1,\"gpu_mem\":4000,\"padding\":50,\"maxSideLen\":1024,\"boxScoreThresh\":0.5,\"boxThresh\":0.3,\"unClipRatio\":1.6,\"doAngle\":true,\"mostAngle\":true,\"visualize\":false,\"enable_log\":false,\"isOutputConsole\":true}')
+    ctypes.c_char_p(b'{\"returncharboxes\":false,\"cpu_mem\":0,\"cpu_threads\":8,\"use_gpu\":false,\"gpu_id\":-1,\"gpu_mem\":4000,\"padding\":50,\"maxSideLen\":1024,\"boxScoreThresh\":0.5,\"boxThresh\":0.3,\"unClipRatio\":1.6,\"doAngle\":true,\"mostAngle\":true,\"visualize\":false,\"enable_log\":false,\"isOutputConsole\":true}')
 )
 
 

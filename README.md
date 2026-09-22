@@ -31,11 +31,7 @@ Paddle推理库版本请移步：[PaddleOCRCore/PaddleOCRApi](https://github.com
 ## 测试环境
 
 - 操作系统：Microsoft Windows 11 专业版
-- CPU：Intel(R) Core(TM) Ultra 7 265K
-- 逻辑处理器：20
-- 内存：64 GB
-- 系统架构：64 位 Windows
-- GPU：NVIDIA GeForce RTX 5070 Ti（驱动 32.0.15.9636）
+- GPU：NVIDIA GeForce RTX 5070 Ti
 
 ## Windows11测试结果
 

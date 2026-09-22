@@ -95,6 +95,29 @@ namespace CoreOCROnnx.SDK
         ///文本识别置信度
         /// </summary>
         public float[] CharScores { get; set; }
+        /// <summary>
+        /// 逐字符坐标，仅在初始化参数 returnCharBoxes=true 时返回。
+        /// </summary>
+        public List<CharBox> CharBoxes { get; set; } = new List<CharBox>();
+    }
+
+    /// <summary>
+    /// 单个 Unicode 码点的识别结果与四点坐标。
+    /// </summary>
+    public class CharBox
+    {
+        /// <summary>
+        /// 单个 Unicode 码点文本。
+        /// </summary>
+        public string Text { get; set; }
+        /// <summary>
+        /// CTC 对齐得分。
+        /// </summary>
+        public float Score { get; set; }
+        /// <summary>
+        /// 字符四点坐标。
+        /// </summary>
+        public List<OCRLocation> Boxes { get; set; } = new List<OCRLocation>();
     }
 
     /// <summary>

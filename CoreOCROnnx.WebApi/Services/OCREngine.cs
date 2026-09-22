@@ -137,6 +137,7 @@ namespace CoreOCROnnx.WebApi.Services
             oCRParameter.enable_log = _ocrConfig.enable_log;//是否输出日志
             oCRParameter.isOutputConsole = _ocrConfig.isOutputConsole;//是否输出日志
             oCRParameter.ocr_instance_count = _ocrConfig.ocr_instance_count;
+            oCRParameter.returnCharBoxes = _ocrConfig.returnCharBoxes;
 
             para.ocrpara = oCRParameter;
             para.paraType = EnumParaType.Class;

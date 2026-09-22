@@ -259,6 +259,10 @@ namespace CoreOCROnnx.WebApi
         /// </summary>
         public int ocr_instance_count { get; set; } = 1;
         /// <summary>
+        /// 是否在 OCR 结果的每个文本块中返回逐字符坐标。
+        /// </summary>
+        public bool returnCharBoxes { get; set; } = false;
+        /// <summary>
         /// 授权文件路径，存在时初始化前自动激活
         /// </summary>
         public string OCRLicense { get; set; } = @"models\paddleocr.lic";

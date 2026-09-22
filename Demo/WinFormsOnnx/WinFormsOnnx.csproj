@@ -7,7 +7,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <PlatformTarget>x64</PlatformTarget>
-	<Version>4.2.0</Version>
+	<Version>4.2.1</Version>
 	<ApplicationIcon>OCR.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CoreOCRRuntime.Onnx.CPU.win-x64" Version="4.2.0" />
+    <PackageReference Include="CoreOCRRuntime.Onnx.CPU.win-x64" Version="4.2.1" />
   </ItemGroup>
 
   <ItemGroup>
