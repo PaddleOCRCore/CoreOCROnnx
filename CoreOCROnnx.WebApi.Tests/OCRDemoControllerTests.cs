@@ -4,8 +4,7 @@ using CoreOCROnnx.WebApi.Controllers;
 using CoreOCROnnx.WebApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+using SkiaSharp;
 
 namespace CoreOCROnnx.WebApi.Tests;
 
@@ -35,16 +34,21 @@ public class OCRDemoControllerTests
         Assert.Equal("图片不存在！", result.ErrorMessage);
     }
 
-    [Fact]
-    public async Task Analyze_ReturnsBadRequest_WhenExtensionIsUnsupported()
+    [Theory]
+    [InlineData("demo.gif", "ppocrv6")]
+    [InlineData("demo.tif", "ppocrv6")]
+    [InlineData("demo.TIFF", "ppocrv6")]
+    [InlineData("demo.tif", "yolo")]
+    [InlineData("demo.TIFF", "yolo")]
+    public async Task Analyze_ReturnsBadRequest_WhenExtensionIsUnsupported(string fileName, string model)
     {
         OCRDemoController controller = CreateController(new OCRResult());
 
-        ActionResult actionResult = await controller.Analyze(CreateFile("demo.gif", [1, 2, 3]), "ppocrv6");
+        ActionResult actionResult = await controller.Analyze(CreateFile(fileName, CreatePngBytes()), model);
 
         ApiResult result = AssertApiResult(actionResult);
         Assert.Equal(HttpStatusCode.BadRequest, result.Status);
-        Assert.Equal("仅支持PNG/JPG/JPEG/BMP/TIF/TIFF图片", result.ErrorMessage);
+        Assert.Equal("仅支持PNG/JPG/JPEG/BMP图片", result.ErrorMessage);
     }
 
     [Fact]
@@ -108,9 +112,53 @@ public class OCRDemoControllerTests
         Assert.Equal(4, box.Points.Count);
     }
 
-    private static OCRDemoController CreateController(OCRResult ocrResult)
+    [Theory]
+    [InlineData("png")]
+    [InlineData("jpg")]
+    [InlineData("JPEG")]
+    [InlineData("bmp")]
+    public async Task Analyze_ReadsDimensions_AndPreservesOriginalBytes(string extension)
     {
-        FakeOcrService ocrService = new() { DetectResult = ocrResult };
+        byte[] bytes;
+        if (extension == "bmp")
+        {
+            // Independent 24-bit BMP fixture, 13 x 7, 40-byte padded scanlines.
+            using var stream = new MemoryStream();
+            using var writer = new BinaryWriter(stream);
+            writer.Write((ushort)0x4D42); writer.Write(334); writer.Write(0); writer.Write(54);
+            writer.Write(40); writer.Write(13); writer.Write(7);
+            writer.Write((ushort)1); writer.Write((ushort)24);
+            writer.Write(0); writer.Write(280);
+            writer.Write(0); writer.Write(0); writer.Write(0); writer.Write(0);
+            writer.Write(new byte[280]);
+            bytes = stream.ToArray();
+        }
+        else
+        {
+            using var bitmap = new SKBitmap(13, 7);
+            bitmap.Erase(SKColors.White);
+            using var image = SKImage.FromBitmap(bitmap);
+            using var data = image.Encode(extension == "png" ? SKEncodedImageFormat.Png : SKEncodedImageFormat.Jpeg, 90);
+            bytes = data.ToArray();
+        }
+        var expected = new OCRResult { StrRes = "fixture", JsonText = "{}" };
+        var service = new FakeOcrService { DetectResult = expected };
+        var controller = CreateController(expected, service);
+        string fileName = "sample." + extension;
+        var result = AssertApiResult(await controller.Analyze(CreateFile(fileName, bytes), "pp-ocrv6"));
+        Assert.Equal(HttpStatusCode.OK, result.Status);
+        var response = Assert.IsType<OCRDemoAnalyzeResult>(result.Data);
+        Assert.Equal(13, response.ImageWidth);
+        Assert.Equal(7, response.ImageHeight);
+        Assert.Equal(fileName, response.FileName);
+        Assert.Equal(expected.StrRes, response.Content);
+        Assert.Equal(expected.JsonText, response.JsonText);
+        Assert.Equal(bytes, service.LastImageBytes);
+    }
+
+    private static OCRDemoController CreateController(OCRResult ocrResult, FakeOcrService? service = null)
+    {
+        FakeOcrService ocrService = service ?? new() { DetectResult = ocrResult };
         OCRConfig ocrConfig = new()
         {
             models_root = "models",
@@ -149,15 +197,17 @@ public class OCRDemoControllerTests
 
     private static byte[] CreatePngBytes()
     {
-        using Image<Rgba32> image = new(1, 1);
-        using MemoryStream stream = new();
-        image.SaveAsPng(stream);
-        return stream.ToArray();
+        using SKBitmap bitmap = new(1, 1);
+        bitmap.Erase(SKColors.White);
+        using var image = SKImage.FromBitmap(bitmap);
+        using var encoded = image.Encode(SKEncodedImageFormat.Png, 100);
+        return encoded.ToArray();
     }
 
     private sealed class FakeOcrService : IOCRService
     {
         public OCRResult DetectResult { get; init; } = new();
+        public byte[]? LastImageBytes { get; private set; }
 
         public bool ActivateLicense(string licenseFile) => true;
 
@@ -173,7 +223,11 @@ public class OCRDemoControllerTests
 
         public OCRResult Detect(string imagefile) => DetectResult;
 
-        public OCRResult Detect(byte[] imagebyte) => DetectResult;
+        public OCRResult Detect(byte[] imagebyte)
+        {
+            LastImageBytes = imagebyte;
+            return DetectResult;
+        }
 
         public OCRResult DetectMat(IntPtr ptr_cvmat) => DetectResult;
 

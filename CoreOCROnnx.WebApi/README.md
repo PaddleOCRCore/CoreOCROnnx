@@ -79,7 +79,7 @@ dotnet run --project CoreOCROnnx.WebApi/CoreOCROnnx.WebApi.csproj --no-launch-pr
 | PP-OCRv6 | 调用OCR识别并返回文字、Json和文本框坐标 |
 | YOLO | 调用YOLO Tensor识别，服务端按640x640输入尺寸做后处理并返回检测框 |
 
-图片限制：仅支持PNG/JPG/JPEG/BMP/TIF/TIFF，单文件大小不超过10MB。
+图片限制：在线 Demo 仅支持 PNG/JPG/JPEG/BMP，单文件大小不超过 10MB。使用 SkiaSharp（MIT 许可）读取图片尺寸，不依赖 ImageSharp；Demo 不支持 TIF/TIFF 上传。其他 OCR/YOLO 接口的支持范围不受此次 Demo 调整影响。
 
 ### 在线Demo解析接口
 
@@ -93,7 +93,7 @@ Content-Type：multipart/form-data
 
 | 参数名称 | 描述 | 类型 | 是否必填 | 备注 |
 | -------- | ---- | ---- | -------- | ---- |
-| file | 图片文件 | file | 必填 | PNG/JPG/JPEG/BMP/TIF/TIFF |
+| file | 图片文件 | file | 必填 | PNG/JPG/JPEG/BMP |
 | model | 解析模型 | string | 必填 | pp-ocrv6 或 yolo |
 
 返回数据示例：

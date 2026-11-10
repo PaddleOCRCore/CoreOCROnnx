@@ -4,7 +4,7 @@ using CoreOCROnnx.WebApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using SixLabors.ImageSharp;
+using SkiaSharp;
 
 namespace CoreOCROnnx.WebApi.Controllers
 {
@@ -21,7 +21,7 @@ namespace CoreOCROnnx.WebApi.Controllers
         private const int YoloInputHeight = 640;
         private static readonly HashSet<string> SupportedExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
-            ".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"
+            ".png", ".jpg", ".jpeg", ".bmp"
         };
 
         private readonly OCREngine _ocrEngine;
@@ -300,7 +300,7 @@ namespace CoreOCROnnx.WebApi.Controllers
             string extension = Path.GetExtension(file.FileName);
             if (!SupportedExtensions.Contains(extension))
             {
-                message = "仅支持PNG/JPG/JPEG/BMP/TIF/TIFF图片";
+                message = "仅支持PNG/JPG/JPEG/BMP图片";
                 return false;
             }
 
@@ -315,15 +315,15 @@ namespace CoreOCROnnx.WebApi.Controllers
             try
             {
                 using MemoryStream stream = new MemoryStream(imageData);
-                var imageInfo = Image.Identify(stream);
-                if (imageInfo == null || imageInfo.Width <= 0 || imageInfo.Height <= 0)
+                using var codec = SKCodec.Create(stream);
+                if (codec == null || codec.Info.Width <= 0 || codec.Info.Height <= 0)
                 {
                     message = "图片格式无效或无法读取尺寸";
                     return false;
                 }
 
-                width = imageInfo.Width;
-                height = imageInfo.Height;
+                width = codec.Info.Width;
+                height = codec.Info.Height;
                 message = string.Empty;
                 return true;
             }

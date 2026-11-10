@@ -763,8 +763,8 @@ function setBusy(busy, statusText) {
 
 function validateFile(file) {
     const extension = getExtension(file.name);
-    if (![".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"].includes(extension)) {
-        return "仅支持PNG/JPG/BMP/TIF图片";
+    if (![".png", ".jpg", ".jpeg", ".bmp"].includes(extension)) {
+        return "仅支持PNG/JPG/JPEG/BMP图片";
     }
 
     if (file.size > 10 * 1024 * 1024) {
